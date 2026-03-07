@@ -1,5 +1,4 @@
 import ScrollReveal from "@/components/ScrollReveal";
-
 import cafeImg from "@/assets/hero-slide-3.jpg";
 import heroFood from "@/assets/4.webp";
 import gallery1 from "@/assets/1.webp";
@@ -30,19 +29,19 @@ const c = {
 
 const AboutPage = () => {
   return (
-    <div className="pt-24 bg-pink-50 min-h-screen text-gray-800">
+    <div className="pt-24 bg-[#FBCFE8]/10 min-h-screen text-gray-800">
 
       {/* ── Hero Banner ── */}
-      <section className="py-20 bg-pink-500 relative overflow-hidden">
+      <section className="py-20 bg-[#FBCFE8] relative overflow-hidden">
         <div className="absolute inset-0 bg-white opacity-5" />
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-pink-400/50 blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-pink-600/50 blur-3xl" />
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/40 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-white/30 blur-3xl" />
         <div className="container relative z-10 text-center">
-          <span className="text-pink-100 text-sm font-semibold tracking-widest uppercase">Our Story</span>
-          <h1 className="text-4xl md:text-6xl font-display font-bold text-white mt-3">
+          <span className="text-gray-700 text-sm font-semibold tracking-widest uppercase">Our Story</span>
+          <h1 className="text-4xl md:text-6xl font-display font-bold text-gray-900 mt-3">
             About {c.name}
           </h1>
-          <div className="h-1 w-16 bg-pink-200 mx-auto mt-6 rounded-full" />
+          <div className="h-1 w-16 bg-[#be185d]/40 mx-auto mt-6 rounded-full" />
         </div>
       </section>
 
@@ -69,7 +68,7 @@ const AboutPage = () => {
             {/* Right - Story Text */}
             <ScrollReveal direction="right">
               <div className="md:pl-4 mt-8 md:mt-0">
-                <span className="text-pink-600 text-sm font-semibold tracking-widest uppercase">Who We Are</span>
+                <span className="text-[#be185d] text-sm font-semibold tracking-widest uppercase">Who We Are</span>
                 <h2 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mt-2 mb-6">
                   Our Story
                 </h2>
@@ -94,13 +93,13 @@ const AboutPage = () => {
       </section>
 
       {/* ── Gallery Strip ── */}
-      <section className="py-12 bg-pink-50/50">
+      <section className="py-12 bg-[#FBCFE8]/10">
         <div className="container">
           <ScrollReveal>
             <div className="text-center mb-10">
-              <span className="text-pink-600 text-sm font-semibold tracking-widest uppercase">Our Vibe</span>
+              <span className="text-[#be185d] text-sm font-semibold tracking-widest uppercase">Our Vibe</span>
               <h2 className="text-3xl font-display font-bold text-gray-900 mt-2">Inside {c.name}</h2>
-              <div className="h-1 w-16 bg-pink-500 mx-auto mt-4 rounded-full" />
+              <div className="h-1 w-16 bg-[#FBCFE8] mx-auto mt-4 rounded-full" />
             </div>
           </ScrollReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -125,16 +124,16 @@ const AboutPage = () => {
         <div className="container">
           <ScrollReveal>
             <div className="text-center mb-12">
-              <span className="text-pink-600 text-sm font-semibold tracking-widest uppercase">What We Stand For</span>
+              <span className="text-[#be185d] text-sm font-semibold tracking-widest uppercase">What We Stand For</span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mt-2">Our Values</h2>
-              <div className="h-1 w-16 bg-pink-500 mx-auto mt-4 rounded-full" />
+              <div className="h-1 w-16 bg-[#FBCFE8] mx-auto mt-4 rounded-full" />
             </div>
           </ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {c.valueCards.map((card, i) => (
               <ScrollReveal key={card.title} delay={i * 0.1}>
-                <div className="p-8 rounded-2xl bg-pink-50/50 border border-pink-100 hover:shadow-md transition-shadow text-center h-full">
-                  <h3 className="font-display text-xl font-bold mb-3 text-pink-600">{card.title}</h3>
+                <div className="p-8 rounded-2xl bg-[#FBCFE8]/10 border border-[#FBCFE8] hover:shadow-md transition-shadow text-center h-full">
+                  <h3 className="font-display text-xl font-bold mb-3 text-[#be185d]">{card.title}</h3>
                   <p className="text-gray-600 text-sm leading-relaxed">{card.description}</p>
                 </div>
               </ScrollReveal>
@@ -144,19 +143,19 @@ const AboutPage = () => {
       </section>
 
       {/* ── Contact Info ── */}
-      <section className="py-20 bg-pink-50/30">
+      <section className="py-20 bg-[#FBCFE8]/20">
         <div className="container">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             {/* Left - Contact */}
             <ScrollReveal direction="left">
               <div className="text-center md:text-left">
-                <span className="text-pink-600 text-sm font-semibold tracking-widest uppercase">Visit Us</span>
+                <span className="text-[#be185d] text-sm font-semibold tracking-widest uppercase">Visit Us</span>
                 <h2 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mt-2 mb-6">Come Say Hello</h2>
                 <p className="text-gray-600 mb-2 text-lg font-medium">{c.addressFull}</p>
                 <p className="text-gray-500 mb-6 text-lg">{c.hours}</p>
                 <a
                   href={`tel:${c.phone}`}
-                  className="inline-flex items-center gap-2 rounded-full bg-pink-500 px-8 py-3 font-semibold text-white hover:bg-pink-600 hover:shadow-lg hover:shadow-pink-500/30 transition-all"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#FBCFE8] px-8 py-3 font-semibold text-gray-900 hover:bg-[#f9a8d4] hover:shadow-lg hover:shadow-[#FBCFE8]/50 transition-all"
                 >
                   {c.phoneDisplay}
                 </a>

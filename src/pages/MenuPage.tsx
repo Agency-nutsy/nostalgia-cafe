@@ -100,16 +100,14 @@ const menuData = [
   }
 ];
 
-// --- UPDATED COMPONENT: Interactive Menu Book ---
+// --- PERFECTED COMPONENT: 2-Sided Interactive Menu Book ---
 const MenuBook = ({ categories }: { categories: typeof menuData }) => {
   const [flippedIndex, setFlippedIndex] = useState(0);
 
-  // Close the book automatically when a user switches categories
   useEffect(() => {
     setFlippedIndex(0);
   }, [categories]);
 
-  // Generate pages based on current category selection
   const pages: any[] = [];
   
   // Cover Page
@@ -120,9 +118,9 @@ const MenuBook = ({ categories }: { categories: typeof menuData }) => {
     subtitle: categories.length > 1 ? "Complete Menu" : `${categories[0].category} Menu` 
   });
 
-  // Content Pages (chunked 4 items per page so it fits the smaller book height)
+  // Reduced items per page so everything fits perfectly in the new realistic double-spread format
   categories.forEach(cat => {
-    const chunkSize = 4;
+    const chunkSize = 3; 
     for (let i = 0; i < cat.items.length; i += chunkSize) {
       pages.push({
         id: `${cat.category}-${i}`,
@@ -139,110 +137,116 @@ const MenuBook = ({ categories }: { categories: typeof menuData }) => {
   pages.push({ id: 'backcover', type: 'backcover' });
 
   return (
-    <div className="mt-20 mb-10 flex flex-col items-center">
+    <div className="mt-20 mb-10 flex flex-col items-center overflow-hidden w-full relative z-10">
       <ScrollReveal>
         <div className="text-center mb-8">
-          <span className="text-pink-600 text-sm font-semibold tracking-widest uppercase">Interactive Experience</span>
+          <span className="text-[#be185d] text-sm font-semibold tracking-widest uppercase">Interactive Experience</span>
           <h2 className="text-3xl font-display font-bold text-gray-900 mt-2">Flip Our Menu Book</h2>
           <p className="text-gray-500 mt-2 text-sm max-w-sm mx-auto">Click the right side to turn the page forward, and the left side to turn back.</p>
-          <div className="h-1 w-16 bg-pink-500 mx-auto mt-4 rounded-full" />
+          <div className="h-1 w-16 bg-[#FBCFE8] mx-auto mt-4 rounded-full" />
         </div>
       </ScrollReveal>
 
-      {/* Book Container - Made Smaller and Enhanced Perspective */}
-      <div className="relative w-full max-w-[340px] md:max-w-[420px] h-[480px] perspective-[2000px] mt-4">
-        {/* Binder Spine Shadow */}
-        <div className="absolute left-0 top-0 bottom-0 w-8 bg-pink-900/10 rounded-l-2xl shadow-inner z-0 -translate-x-2" />
+      {/* Centered Book Container for the 2-Page Spread */}
+      <div className="relative w-full max-w-[600px] flex justify-center mt-4 perspective-[2000px]">
+        
+        {/* Right Half (Pages hinge from the left edge of this div) */}
+        <div className="relative w-[160px] xs:w-[180px] sm:w-[240px] md:w-[280px] h-[260px] xs:h-[300px] sm:h-[380px] md:h-[440px]">
+          
+          {/* Binder Spine Shadow underneath */}
+          <div className="absolute left-0 top-0 bottom-0 w-4 md:w-6 bg-gray-900/10 rounded-full shadow-inner z-0 -translate-x-1/2" />
 
-        {pages.map((page, index) => {
-          const isFlipped = index < flippedIndex;
-          const isTop = index === flippedIndex;
+          {pages.map((page, index) => {
+            const isFlipped = index < flippedIndex;
+            
+            // FIX: Lowered the z-index so the book stays safely UNDER the sticky category bar and navbar
+            const isTopLeaf = index === flippedIndex || index === flippedIndex - 1;
+            const dynamicZIndex = isTopLeaf ? 20 : 10 - Math.abs(flippedIndex - index);
 
-          return (
-            <motion.div
-              key={page.id}
-              className={`absolute inset-0 origin-left rounded-r-3xl rounded-l-sm border border-pink-200/50 flex flex-col overflow-hidden ${
-                page.type === 'cover' || page.type === 'backcover' 
-                  ? 'bg-pink-500 text-white shadow-2xl' 
-                  : 'bg-[#fffdfa] text-gray-800 shadow-xl'
-              }`}
-              style={{
-                backfaceVisibility: "hidden",
-                WebkitBackfaceVisibility: "hidden",
-                transformStyle: "preserve-3d", // Enhances 3D effect
-              }}
-              initial={false}
-              animate={{
-                rotateY: isFlipped ? -180 : 0,
-                zIndex: isFlipped ? index : pages.length - index,
-                boxShadow: isTop ? "20px 0 25px -5px rgba(236, 72, 153, 0.15)" : "none"
-              }}
-              transition={{ duration: 0.8, ease: "easeInOut" }} // Slower, smoother page turn
-            >
-              {/* Invisible Click Zones for Turning Pages */}
-              <div className="absolute inset-0 flex z-30">
-                <div className="w-1/2 h-full cursor-pointer" onClick={() => setFlippedIndex(Math.max(0, index - 1))} title="Previous Page" />
-                <div className="w-1/2 h-full cursor-pointer" onClick={() => setFlippedIndex(Math.min(pages.length - 1, index + 1))} title="Next Page" />
-              </div>
+            return (
+              <motion.div
+                key={page.id}
+                className="absolute inset-0 origin-left cursor-pointer"
+                style={{ transformStyle: "preserve-3d" }} 
+                initial={false}
+                animate={{
+                  rotateY: isFlipped ? -180 : 0,
+                  zIndex: dynamicZIndex,
+                }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                onClick={() => {
+                  // Click on left stack turns page back, right stack turns page forward
+                  if (isFlipped) setFlippedIndex(Math.max(0, index));
+                  else setFlippedIndex(Math.min(pages.length, index + 1));
+                }}
+              >
+                {/* ── FRONT OF LEAF (Right Side) ── */}
+                <div 
+                  className={`absolute inset-0 flex flex-col overflow-hidden rounded-r-2xl rounded-l-sm border border-[#FBCFE8] shadow-lg ${
+                    page.type === 'cover' || page.type === 'backcover' ? 'bg-[#FBCFE8] text-gray-900' : 'bg-[#fffdfa] text-gray-800'
+                  }`}
+                  style={{ backfaceVisibility: "hidden" }}
+                >
+                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/10 to-transparent pointer-events-none" />
+                  
+                  <div className="p-4 md:p-6 flex-1 flex flex-col pointer-events-none">
+                    {page.type === 'cover' && (
+                      <div className="flex-1 flex flex-col items-center justify-center text-center border-2 border-white/50 rounded-xl p-2 md:p-3 m-1 bg-white/30">
+                        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-3 leading-tight">{page.title}</h1>
+                        <div className="w-8 h-1 bg-[#be185d]/40 rounded-full mb-4" />
+                        <span className="text-gray-700 tracking-widest uppercase text-[10px] md:text-xs font-semibold">{page.subtitle}</span>
+                      </div>
+                    )}
 
-              {/* Binder Overlay (creates realistic shadow on the left seam) */}
-              <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-black/10 to-transparent pointer-events-none z-20" />
-
-              {/* Page Content */}
-              <div className="p-6 md:p-8 flex-1 flex flex-col relative z-10 pointer-events-none">
-                
-                {page.type === 'cover' && (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center border-[3px] border-pink-400/60 rounded-2xl p-4 m-1 bg-pink-500/50">
-                    <h1 className="font-display text-4xl md:text-5xl font-bold mb-4 leading-tight">{page.title}</h1>
-                    <div className="w-12 h-1 bg-pink-300 rounded-full mb-6" />
-                    <span className="text-pink-100 tracking-widest uppercase text-xs md:text-sm font-semibold">{page.subtitle}</span>
-                    <p className="text-pink-100 italic bg-pink-600/50 px-4 py-2 rounded-full text-xs shadow-sm mt-8">Click right to open</p>
-                  </div>
-                )}
-
-                {page.type === 'content' && (
-                  <>
-                    <div className="border-b-2 border-pink-100 pb-3 mb-4 mt-1">
-                      <h3 className="font-display font-bold text-xl text-pink-600 flex items-center gap-2">
-                        <span className="text-2xl drop-shadow-sm">{page.emoji}</span> {page.title}
-                      </h3>
-                    </div>
-                    <div className="space-y-4 flex-1 px-1">
-                      {page.items.map((item: any, i: number) => (
-                        <div key={i}>
-                          <div className="flex justify-between items-start gap-2 mb-1">
-                            <h4 className="font-bold text-gray-800 leading-tight text-[14px]">{item.name}</h4>
-                            <span className="font-bold text-pink-600 shrink-0 bg-pink-50 px-2 py-0.5 rounded-md text-[13px]">{item.price}</span>
-                          </div>
-                          <p className="text-[12px] text-gray-500 leading-snug pr-4">{item.desc}</p>
+                    {page.type === 'content' && (
+                      <>
+                        <div className="border-b-2 border-[#FBCFE8] pb-2 mb-3">
+                          <h3 className="font-display font-bold text-sm sm:text-lg text-[#be185d] flex items-center gap-1.5">
+                            <span className="text-lg sm:text-xl drop-shadow-sm">{page.emoji}</span> 
+                            <span className="truncate">{page.title}</span>
+                          </h3>
                         </div>
-                      ))}
-                    </div>
-                    <div className="text-center text-[10px] font-semibold text-pink-300/80 mt-2 border-t border-pink-50 pt-3 uppercase tracking-widest">
-                      Page {page.pageNum}
-                    </div>
-                  </>
-                )}
+                        <div className="space-y-3 flex-1 px-1">
+                          {page.items.map((item: any, i: number) => (
+                            <div key={i}>
+                              <div className="flex justify-between items-start gap-1 mb-1">
+                                <h4 className="font-bold text-gray-800 leading-tight text-[11px] sm:text-[13px]">{item.name}</h4>
+                                <span className="font-bold text-[#be185d] shrink-0 bg-[#FBCFE8]/30 px-1.5 py-0.5 rounded text-[10px] sm:text-[12px]">{item.price}</span>
+                              </div>
+                              <p className="text-[9px] sm:text-[11px] text-gray-500 leading-snug pr-2 line-clamp-2">{item.desc}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-center text-[9px] sm:text-[10px] font-semibold text-[#be185d]/70 mt-2 border-t border-[#FBCFE8]/50 pt-2 uppercase tracking-widest">
+                          Page {page.pageNum}
+                        </div>
+                      </>
+                    )}
 
-                {page.type === 'backcover' && (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center">
-                    <h2 className="font-display text-3xl font-bold mb-3 text-white">The Aura Cafe</h2>
-                    <p className="text-pink-100 mb-8 text-md">Thank you for visiting.</p>
-                    
-                    {/* NEW: Interactive Close Button */}
-                    <button 
-                      onClick={() => setFlippedIndex(0)}
-                      className="pointer-events-auto px-6 py-2.5 rounded-full bg-white text-pink-600 font-semibold text-sm shadow-lg hover:scale-105 hover:bg-pink-50 transition-all"
-                    >
-                      Close Menu
-                    </button>
-                    
+                    {page.type === 'backcover' && (
+                      <div className="flex-1 flex flex-col items-center justify-center text-center">
+                        <h2 className="font-display text-xl sm:text-2xl font-bold mb-2 text-gray-900">The Aura Cafe</h2>
+                        <p className="text-gray-700 text-[10px] sm:text-sm">Thank you for visiting.</p>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </motion.div>
-          );
-        })}
+                </div>
+
+                {/* ── BACK OF LEAF (Left Side) ── */}
+                <div 
+                  className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-l-2xl rounded-r-sm border border-[#FBCFE8] bg-[#FBCFE8]/30 shadow-lg"
+                  style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+                >
+                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/10 to-transparent pointer-events-none" />
+                  <div className="opacity-10 text-center pointer-events-none">
+                    <span className="font-display text-3xl sm:text-4xl font-bold text-[#be185d] -rotate-12 block">Aura</span>
+                  </div>
+                </div>
+
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Button Controls */}
@@ -250,16 +254,16 @@ const MenuBook = ({ categories }: { categories: typeof menuData }) => {
         <button
           onClick={() => setFlippedIndex(Math.max(0, flippedIndex - 1))}
           disabled={flippedIndex === 0}
-          className="px-6 py-2 rounded-full bg-white border border-pink-200 text-pink-600 font-semibold text-sm disabled:opacity-50 hover:bg-pink-50 hover:shadow-md transition-all shadow-sm z-30 relative"
+          className="px-6 py-2 rounded-full bg-white border border-[#FBCFE8] text-[#be185d] font-semibold text-sm disabled:opacity-50 hover:bg-[#FBCFE8]/30 hover:shadow-md transition-all shadow-sm z-30 relative"
         >
           Previous
         </button>
         <button
-          onClick={() => setFlippedIndex(Math.min(pages.length - 1, flippedIndex + 1))}
-          disabled={flippedIndex === pages.length - 1}
-          className="px-6 py-2 rounded-full bg-pink-500 text-white font-semibold text-sm disabled:opacity-50 hover:bg-pink-600 hover:shadow-md transition-all shadow-sm z-30 relative"
+          onClick={() => setFlippedIndex(Math.min(pages.length, flippedIndex + 1))}
+          disabled={flippedIndex === pages.length}
+          className="px-6 py-2 rounded-full bg-[#FBCFE8] text-gray-900 font-semibold text-sm disabled:opacity-50 hover:bg-[#f9a8d4] hover:shadow-md transition-all shadow-sm z-30 relative"
         >
-          Next Page
+          {flippedIndex === pages.length ? "Closed" : "Next Page"}
         </button>
       </div>
     </div>
@@ -274,35 +278,42 @@ const MenuPage = () => {
     ? menuData
     : menuData.filter((cat) => cat.category === activeCategory);
 
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    const menuStartEl = document.getElementById("menu-content-start");
+    if (menuStartEl) {
+      const y = menuStartEl.getBoundingClientRect().top + window.scrollY - 140; 
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="relative min-h-screen bg-pink-50 text-gray-800">
+    <div className="relative min-h-screen bg-[#FBCFE8]/10 text-gray-800">
       
-      {/* ── BULLETPROOF CATEGORY BAR (FIXED) ── */}
-      <div className="fixed top-16 md:top-20 left-0 right-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-pink-100 shadow-sm">
+      {/* ── BULLETPROOF CATEGORY BAR ── */}
+      <div className="fixed top-16 md:top-20 left-0 right-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#FBCFE8] shadow-sm">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             
-            {/* All Button */}
             <button
-              onClick={() => setActiveCategory("all")}
+              onClick={() => handleCategoryChange("all")}
               className={`flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 shrink-0 ${
                 activeCategory === "all"
-                  ? "bg-pink-500 text-white border-pink-500 shadow-sm"
-                  : "bg-white border-pink-200 text-gray-700 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-300 hover:shadow-md"
+                  ? "bg-[#FBCFE8] text-gray-900 border-[#FBCFE8] shadow-sm"
+                  : "bg-white border-[#FBCFE8]/80 text-gray-700 hover:bg-[#FBCFE8]/40 hover:text-[#be185d] hover:border-[#be185d]/30 hover:shadow-md"
               }`}
             >
               🍽️ All
             </button>
 
-            {/* Category Buttons */}
             {menuData.map((cat) => (
               <button
                 key={cat.category}
-                onClick={() => setActiveCategory(cat.category)}
+                onClick={() => handleCategoryChange(cat.category)}
                 className={`flex items-center gap-1.5 whitespace-nowrap px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 shrink-0 ${
                   activeCategory === cat.category
-                    ? "bg-pink-500 text-white border-pink-500 shadow-sm"
-                    : "bg-white border-pink-200 text-gray-700 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-300 hover:shadow-md"
+                    ? "bg-[#FBCFE8] text-gray-900 border-[#FBCFE8] shadow-sm"
+                    : "bg-white border-[#FBCFE8]/80 text-gray-700 hover:bg-[#FBCFE8]/40 hover:text-[#be185d] hover:border-[#be185d]/30 hover:shadow-md"
                 }`}
               >
                 <span>{cat.emoji}</span>
@@ -319,17 +330,17 @@ const MenuPage = () => {
         {/* Header */}
         <ScrollReveal>
           <div className="text-center mb-10 mt-2">
-            <span className="text-pink-600 text-sm font-semibold tracking-widest uppercase">Explore</span>
+            <span className="text-[#be185d] text-sm font-semibold tracking-widest uppercase">Explore</span>
             <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-900 mt-2">Our Menu</h1>
             <p className="text-gray-600 mt-3 max-w-md mx-auto">
               Fresh, authentic, and made with love — every single day
             </p>
-            <div className="h-1 w-16 bg-pink-500 mx-auto mt-6 rounded-full" />
+            <div className="h-1 w-16 bg-[#be185d] mx-auto mt-6 rounded-full" />
           </div>
         </ScrollReveal>
 
-        {/* ── Menu Sections ── */}
-        <div className="space-y-12 max-w-2xl mx-auto">
+        {/* ── Menu Sections (Anchor target for scrolling) ── */}
+        <div id="menu-content-start" className="space-y-12 max-w-2xl mx-auto scroll-mt-32">
           <AnimatePresence mode="wait">
             {filtered.map((cat, catIdx) => (
               <motion.div
@@ -340,8 +351,8 @@ const MenuPage = () => {
                 transition={{ duration: 0.25, delay: catIdx * 0.05 }}
               >
                 <ScrollReveal delay={catIdx * 0.05}>
-                  <div className="bg-white rounded-2xl border border-pink-100 shadow-sm p-6 md:p-8">
-                    <h2 className="text-2xl font-display font-bold text-gray-900 mb-6 flex items-center gap-3 border-b border-pink-50 pb-4">
+                  <div className="bg-white rounded-2xl border border-[#FBCFE8] shadow-sm p-6 md:p-8">
+                    <h2 className="text-2xl font-display font-bold text-gray-900 mb-6 flex items-center gap-3 border-b border-[#FBCFE8]/40 pb-4">
                       <span className="text-2xl">{cat.emoji}</span>
                       {cat.category}
                     </h2>
@@ -349,7 +360,7 @@ const MenuPage = () => {
                       {cat.items.map((item, i) => (
                         <motion.div
                           key={item.name}
-                          className="flex justify-between items-start gap-4 p-3 rounded-xl hover:bg-pink-50/80 transition-colors group"
+                          className="flex justify-between items-start gap-4 p-3 rounded-xl hover:bg-[#FBCFE8]/20 transition-colors group"
                           initial={{ opacity: 0, y: 10 }}
                           whileInView={{ opacity: 1, y: 0 }}
                           viewport={{ once: true }}
@@ -357,18 +368,18 @@ const MenuPage = () => {
                         >
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-semibold text-gray-800 text-sm group-hover:text-pink-600 transition-colors">
+                              <h3 className="font-semibold text-gray-800 text-sm group-hover:text-[#be185d] transition-colors">
                                 {item.name}
                               </h3>
                               {(item as any).popular && (
-                                <span className="text-[10px] font-bold uppercase tracking-wider bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full">
+                                <span className="text-[10px] font-bold uppercase tracking-wider bg-[#FBCFE8]/60 text-[#be185d] px-2 py-0.5 rounded-full">
                                   Popular
                                 </span>
                               )}
                             </div>
                             <p className="text-xs text-gray-500 mt-1 leading-relaxed">{item.desc}</p>
                           </div>
-                          <span className="text-sm font-bold text-pink-600 whitespace-nowrap bg-pink-100/50 px-3 py-1 rounded-full border border-pink-100">
+                          <span className="text-sm font-bold text-[#be185d] whitespace-nowrap bg-[#FBCFE8]/30 px-3 py-1 rounded-full border border-[#FBCFE8]/50">
                             {item.price}
                           </span>
                         </motion.div>
@@ -386,11 +397,11 @@ const MenuPage = () => {
 
         {/* Call CTA */}
         <ScrollReveal>
-          <div className="text-center mt-16 p-8 rounded-2xl bg-white border border-pink-200 shadow-sm">
+          <div className="text-center mt-16 p-8 rounded-2xl bg-white border border-[#FBCFE8] shadow-sm">
             <p className="text-gray-600 text-sm mb-4 font-medium">Ready to order or book a table?</p>
             <a
               href={`tel:${PHONE}`}
-              className="inline-flex items-center gap-2 rounded-full bg-pink-500 px-8 py-3 font-semibold text-white hover:bg-pink-600 hover:shadow-lg hover:shadow-pink-500/30 transition-all"
+              className="inline-flex items-center gap-2 rounded-full bg-[#FBCFE8] px-8 py-3 font-semibold text-gray-900 hover:bg-[#f9a8d4] hover:shadow-lg hover:shadow-[#FBCFE8]/50 transition-all"
             >
               <Phone size={18} />
               Call Us

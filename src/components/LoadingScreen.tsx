@@ -37,24 +37,24 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 bg-pink-500 z-[9999] flex flex-col items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 bg-[#FBCFE8] z-[9999] flex flex-col items-center justify-center overflow-hidden">
       
       {/* Decorative Background Blurs */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-pink-400/50 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-pink-600/50 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/40 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-white/30 rounded-full blur-3xl" />
 
       <div className="text-center relative z-10">
-        <h1 className="font-display text-5xl md:text-6xl font-bold text-white mb-3 tracking-tight">
+        <h1 className="font-display text-5xl md:text-6xl font-bold text-gray-900 mb-3 tracking-tight">
           {CAFE_NAME}
         </h1>
-        <p className="text-pink-100 italic text-lg md:text-xl mb-12 font-medium">
+        <p className="text-gray-700 italic text-lg md:text-xl mb-12 font-medium">
           {LOADING_TAGLINE}
         </p>
         
         {/* Progress Bar */}
-        <div className="w-56 h-1.5 bg-pink-700/30 rounded-full mx-auto overflow-hidden backdrop-blur-sm shadow-inner">
+        <div className="w-56 h-1.5 bg-white/50 rounded-full mx-auto overflow-hidden backdrop-blur-sm shadow-inner">
           <div
-            className="h-full bg-white rounded-full transition-all duration-100 ease-out"
+            className="h-full bg-gray-900 rounded-full transition-all duration-100 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>

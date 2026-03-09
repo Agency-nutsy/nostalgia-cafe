@@ -3,8 +3,8 @@ import whatsappLogo from "@/assets/whatsapp-logo.jpg";
 
 const WhatsAppButton = () => (
   <motion.a
-    // Live WhatsApp link for The Aura Cafe
-    href="https://wa.me/919871712300"
+    // Live WhatsApp link for Kiiza Cafe and Lounge
+    href="https://wa.me/919654133100"
     target="_blank"
     rel="noopener noreferrer"
     aria-label="WhatsApp Us"

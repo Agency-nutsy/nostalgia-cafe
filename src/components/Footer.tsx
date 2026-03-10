@@ -1,45 +1,46 @@
 import { Link } from "react-router-dom";
 import { Instagram, Phone, MapPin } from "lucide-react";
 
-// Integrated Kiiza Cafe & Lounge Data with Live Links
+// Integrated Nostalgia Cafe Data
 const c = {
-  name: "Kiiza Cafe and Lounge",
+  name: "Nostalgia Cafe",
   nameParts: {
-    white: "Kiiza",
+    primary: "Nostalgia",
     accent: "Cafe"
   },
-  phone: "919654133100",
-  phoneDisplay: "+91 96541 33100",
-  addressFull: "2648 first floor, Hudson Ln, GTB Nagar, Delhi, 110009",
-  mapsLink: "https://maps.app.goo.gl/ixVpXR1qz3tq7ErP6",
-  instagram: "https://www.instagram.com/kiizadelhicafe/", 
-  hours: "11:00 AM - 12:00 AM, Monday - Sunday",
-  footerDescription: "Your vibrant lounge in GTB Nagar. Serving up multi-cuisine mastery, electric nights, and premium cocktails every single day.",
+  phone: "919878705823",
+  phoneDisplay: "+91 98787 05823",
+  addressFull: "F, 21A, F Block Vijay Nagar (opposite NDPL Office), GTB Nagar, Delhi, 110033",
+  mapsLink: "https://maps.app.goo.gl/QEPbURnF19ad3KqQ6",
+  instagram: "https://www.instagram.com/nostalgia__cafe_/?hl=en", 
+  hours: "12:00 PM - 10:30 PM, Monday - Sunday",
+  footerDescription: "Your cozy, pink-hued neighborhood spot in GTB Nagar. Come for the comfort food, stay for the board games, novels, and unforgettable aesthetic.",
   popularItems: [
-    "Stuffed Murg Tangdi",
-    "Signature Biryani",
-    "Peri Peri Chicken Pizza",
-    "Classic Dirty Martini"
+    "Signature Cold Coffee",
+    "Spicy Arrabbiata Penne",
+    "Classic Veggie Burger",
+    "Chilli Paneer Dry"
   ]
 };
 
 const Footer = () => {
   return (
-    <footer className="bg-[#CF9FFF] text-gray-900 relative overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-      <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-white/40 blur-3xl" />
-      <div className="absolute bottom-0 left-10 w-40 h-40 rounded-full bg-white/30 blur-3xl" />
+    <footer className="bg-[#FCF9F9] text-stone-700 relative overflow-hidden border-t border-[#F0E6E8]">
+      {/* Soft ambient background elements */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#E8D6D9] to-transparent" />
+      <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-[#FDF8F9] blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-10 w-40 h-40 rounded-full bg-white blur-3xl pointer-events-none" />
 
       <div className="container py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
 
           {/* Brand */}
           <div className="md:col-span-1">
-            <h3 className="font-display text-3xl font-bold mb-4">
-              <span className="text-gray-900">{c.nameParts.white}</span>
-              <span className="text-white"> {c.nameParts.accent}</span>
+            <h3 className="font-display text-3xl font-bold mb-4 flex gap-1.5">
+              <span className="text-[#C597A6]">{c.nameParts.primary}</span>
+              <span className="text-stone-700">{c.nameParts.accent}</span>
             </h3>
-            <p className="text-gray-800 text-sm leading-relaxed mb-6 font-medium">
+            <p className="text-stone-500 text-sm leading-relaxed mb-6 font-medium">
               {c.footerDescription}
             </p>
             <div className="flex gap-3">
@@ -48,7 +49,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="w-10 h-10 rounded-full bg-white/60 flex items-center justify-center text-gray-900 hover:bg-white hover:text-[#A855F7] hover:shadow-md transition-all duration-300"
+                className="w-10 h-10 rounded-full bg-white border border-[#F0E6E8] flex items-center justify-center text-[#C597A6] hover:bg-[#D4A5B4] hover:text-white hover:border-[#D4A5B4] shadow-sm hover:shadow-md transition-all duration-300"
               >
                 <Instagram size={18} />
               </a>
@@ -57,7 +58,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-gray-900">Navigate</h4>
+            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-stone-800">Navigate</h4>
             <ul className="space-y-3 text-sm">
               {[
                 { to: "/",        label: "Home"    },
@@ -67,7 +68,7 @@ const Footer = () => {
                 { to: "/contact", label: "Contact" },
               ].map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-gray-800 font-medium hover:text-white transition-colors">
+                  <Link to={l.to} className="text-stone-500 font-medium hover:text-[#C597A6] transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -77,8 +78,8 @@ const Footer = () => {
 
           {/* Popular Items */}
           <div>
-            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-gray-900">Popular</h4>
-            <ul className="space-y-3 text-sm text-gray-800 font-medium">
+            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-stone-800">Popular</h4>
+            <ul className="space-y-3 text-sm text-stone-500 font-medium">
               {c.popularItems.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -87,19 +88,19 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-gray-900">Contact</h4>
-            <ul className="space-y-4 text-sm text-gray-800 font-medium">
+            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-stone-800">Contact</h4>
+            <ul className="space-y-4 text-sm text-stone-500 font-medium">
               <li>
                 <a href={c.mapsLink} target="_blank" rel="noopener noreferrer"
-                  className="flex items-start gap-3 hover:text-white transition-colors group">
-                  <MapPin size={18} className="mt-0.5 shrink-0 text-white" />
+                  className="flex items-start gap-3 hover:text-[#C597A6] transition-colors group">
+                  <MapPin size={18} className="mt-0.5 shrink-0 text-[#D4A5B4]" />
                   <span className="leading-relaxed">{c.addressFull}</span>
                 </a>
               </li>
               <li>
                 <a href={`tel:+${c.phone}`}
-                  className="flex items-center gap-3 hover:text-white transition-colors group">
-                  <Phone size={18} className="shrink-0 text-white" />
+                  className="flex items-center gap-3 hover:text-[#C597A6] transition-colors group">
+                  <Phone size={18} className="shrink-0 text-[#D4A5B4]" />
                   {c.phoneDisplay}
                 </a>
               </li>
@@ -109,9 +110,9 @@ const Footer = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-gray-900/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-gray-800 font-medium">© {new Date().getFullYear()} {c.name}. All rights reserved.</p>
-          <p className="text-xs text-gray-800 font-medium">{c.hours}</p>
+        <div className="border-t border-[#F0E6E8] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-stone-400 font-medium">© {new Date().getFullYear()} {c.name}. All rights reserved.</p>
+          <p className="text-xs text-stone-400 font-medium">{c.hours}</p>
         </div>
       </div>
     </footer>

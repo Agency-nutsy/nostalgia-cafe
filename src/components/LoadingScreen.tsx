@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 
-// Integrated Kiiza Cafe & Lounge Data
-const CAFE_NAME = "Kiiza Lounge";
-const LOADING_TAGLINE = "Preparing your electric vibe...";
+// Integrated Nostalgia Cafe Data
+const CAFE_NAME = "Nostalgia Cafe";
+const LOADING_TAGLINE = "Lighting the floating candles...";
 
 const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   const [progress, setProgress] = useState(0);
@@ -37,24 +37,24 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 bg-[#CF9FFF] z-[9999] flex flex-col items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 bg-[#FCF9F9] z-[9999] flex flex-col items-center justify-center overflow-hidden">
       
       {/* Decorative Background Blurs */}
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/50 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-white/40 rounded-full blur-3xl" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#F0E6E8] rounded-full blur-3xl opacity-60" />
+      <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#FDF8F9] rounded-full blur-3xl opacity-80" />
 
       <div className="text-center relative z-10">
-        <h1 className="font-display text-5xl md:text-6xl font-bold text-gray-900 mb-3 tracking-tight drop-shadow-sm">
+        <h1 className="font-display text-5xl md:text-6xl font-bold text-stone-700 mb-3 tracking-tight">
           {CAFE_NAME}
         </h1>
-        <p className="text-gray-800 italic text-lg md:text-xl mb-12 font-medium">
+        <p className="text-[#C597A6] italic text-lg md:text-xl mb-12 font-medium">
           {LOADING_TAGLINE}
         </p>
         
         {/* Progress Bar */}
-        <div className="w-56 h-1.5 bg-white/60 rounded-full mx-auto overflow-hidden backdrop-blur-sm shadow-inner">
+        <div className="w-56 h-1.5 bg-[#F0E6E8] rounded-full mx-auto overflow-hidden shadow-inner">
           <div
-            className="h-full bg-gray-900 rounded-full transition-all duration-100 ease-out"
+            className="h-full bg-[#D4A5B4] rounded-full transition-all duration-100 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>

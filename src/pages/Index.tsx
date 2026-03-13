@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { UtensilsCrossed, BookOpen, Star, ArrowRight, Clock, MapPin, Phone, Coffee, Instagram } from "lucide-react";
-import { motion } from "framer-motion";
+import { UtensilsCrossed, BookOpen, Star, MapPin, Phone, Coffee, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Lottie from "lottie-react"; 
 import ScrollReveal from "@/components/ScrollReveal";
+
+// Assets
 import heroSlide1 from "@/assets/hero-slide-1.jpg";
 import heroSlide2 from "@/assets/hero-slide-2.jpg";
 import heroSlide3 from "@/assets/hero-slide-3.jpg";
-// Removed heroSlide4 import
 import gallery1 from "@/assets/gallery-1.jpg";
 import gallery2 from "@/assets/gallery-2.jpg";
 import dish1 from "@/assets/dish-1.jpg";
@@ -14,458 +16,431 @@ import dish2 from "@/assets/dish-2.jpg";
 import dish3 from "@/assets/dish-3.jpg";
 import dish4 from "@/assets/dish-4.jpg";
 
-const c = {
-  name: "NOSTALGIA CAFE",
-  phone: "919878705823",
-  phoneDisplay: "+91 98787 05823",
-  addressFull: "F, 21A, F Block Vijay Nagar (opposite NDPL Office), GTB Nagar, Delhi, 110033, India",
-  mapsLink: "https://maps.app.goo.gl/QEPbURnF19ad3KqQ6",
-  mapsEmbed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3499.854799748225!2d77.2016860753379!3d28.693989775631174!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd4af48bad2f%3A0x99ab93f9859654f9!2sNostalgia%20Cafe!5e0!3m2!1sen!2sin!4v1773169819330!5m2!1sen!2sin",
-  instagram: "https://www.instagram.com/", 
-  hours: "12:00 PM - 10:30 PM, Monday - Sunday",
-  hero: {
-    badge: "Food. Board Games. Good Vibes.",
-    h1: "Welcome to Nostalgia",
-    tagline: "Your Cozy Neighborhood Escape.",
-    description: "Step into our world of floating candles, comfortable seating, and vintage games. Dive into our versatile menu and relive the good times with friends."
+// Animations
+import ghostAnimation from "@/assets/ghost.json";
+import spookyGhostLoader from "@/assets/Spooky Ghost Loader.json"; 
+import batAnimation from "@/assets/bat.json"; 
+import bloodSplat from "@/assets/blood.png"; 
+
+// The Exact Coffin Shape
+const COFFIN_PATH = "polygon(25% 0%, 75% 0%, 100% 30%, 80% 100%, 20% 100%, 0% 30%)";
+
+// ── HELPER FOR BLOOD PLACEMENT ──
+const BloodSplat = ({ style, rotate, size, opacity }: any) => (
+  <img 
+    src={bloodSplat}
+    alt=""
+    className="absolute pointer-events-none select-none z-0 border-none outline-none bg-transparent"
+    style={{ 
+      ...style, 
+      width: size, 
+      height: 'auto', 
+      transform: `rotate(${rotate}deg)`, 
+      opacity: opacity,
+      filter: 'brightness(0.5) contrast(1.15)' 
+    }}
+  />
+);
+
+// Top Reviews from Google Maps (4 & 5 Stars Only)
+const reviews = [
+  {
+    name: "Arjun Sharma",
+    rating: 5,
+    text: "The vibe here is unmatched! The floating candles and the whole board game collection make it the perfect spot to chill with friends. Highly recommend their pizzas!",
   },
-  specialties: [
-    { 
-      name: "Classic Farmhouse Pizza", 
-      price: "₹249", 
-      desc: "A crispy, perfectly baked crust loaded with gooey mozzarella, fresh bell peppers, onions, tomatoes, and a kick of spicy jalapeños. Best shared over a game of UNO.", 
-      tag: "Crowd Favorite" 
-    },
-    { 
-      name: "Spaghetti Aglio e Olio", 
-      price: "₹229", 
-      desc: "Classic Italian spaghetti lightly tossed in olive oil, toasted garlic, chili flakes, and fresh herbs, served alongside warm, cheesy garlic bread.", 
-      tag: "Chef's Special" 
-    },
-    { 
-      name: "Tandoori Paneer Tikka", 
-      price: "₹259", 
-      desc: "Soft, melt-in-your-mouth paneer blocks marinated in rich, traditional spices, charred to perfection, and served with classic onion rings.", 
-      tag: "Spicy & Smoky" 
-    },
-    { 
-      name: "Loaded Chocolate Frappe", 
-      price: "₹210", 
-      desc: "A decadent, towering blend of rich cold coffee and chocolate, crowned with a thick layer of cream and crushed chocolate chunks.", 
-      tag: "Signature Drink" 
-    }
-  ],
-  features: {
-    heading: "The Nostalgia Experience",
-    items: [
-      { title: "Versatile Menu", desc: "A pocket-friendly mix of Chinese, Italian, Pizzas, Burgers, and signature shakes." },
-      { title: "Board Games & Books", desc: "Unplug and unwind. We have a huge collection of board games and novels to keep you entertained." },
-      { title: "Aesthetic Vibe", desc: "Warm lighting, checkered floors, and floating candles make for the perfect Instagram backdrop." }
-    ]
+  {
+    name: "Priya Verma",
+    rating: 5,
+    text: "Literally the coziest cafe in GTB Nagar. It's super pocket-friendly and the aesthetic is just 10/10. Perfect for a nostalgic evening.",
   },
-  ambiance: {
-    heading: "Relive The Good Times",
-    story: "Located opposite the NDPL Office in GTB Nagar, Nostalgia Cafe is where great food meets an unforgettable, cozy atmosphere. With our warm lighting, vintage decor, and comfortable seating, we're the ultimate pocket-friendly destination for group hangouts, reading sessions, and casual dates."
+  {
+    name: "Rohan Mehra",
+    rating: 4,
+    text: "Great place for a group hangout. The Peri Peri fries and Shakes are delicious. Love that they have so many board games to keep us busy.",
   },
-  cta: {
-    heading: "Ready for a Trip Down Memory Lane?",
-    subtext: "Join us in Vijay Nagar for exceptional comfort food and a uniquely warm vibe. See you soon!"
-  },
-  stats: [
-    { label: "Cost for Two", value: "₹450" },
-    { label: "Board Games", value: "20+" },
-    { label: "Hours Open", value: "10.5" },
-    { label: "Vibe", value: "100%" }
-  ],
-  reviews: [
-    { name: "Aarav", text: "The warm vibe and the checkered floors look amazing. Great place to play UNO with friends while eating good pizza!", rating: 5, avatar: "A" },
-    { name: "Priya", text: "Super pocket-friendly! The cold coffee is a must-try, and I love that they have books you can read while sitting on the comfy couches.", rating: 5, avatar: "P" },
-    { name: "Karan", text: "Very cool ambiance. The floating candles remind me of Hogwarts! Definitely coming back for the Chinese food.", rating: 4, avatar: "K" }
-  ]
-};
-
-const PHONE = c.phone;
-const PHONE_DISPLAY = c.phoneDisplay;
-const ADDRESS = c.addressFull;
-const MAPS_LINK = c.mapsLink;
-const MAPS_EMBED = c.mapsEmbed;
-const INSTAGRAM = c.instagram;
-
-// Updated array to only include 3 images
-const heroSlides = [heroSlide1, heroSlide2, heroSlide3];
-
-const specialties = c.specialties.map((s, i) => ({
-  ...s,
-  img: [dish1, dish2, dish3, dish4][i]
-}));
-
-const reviews = c.reviews;
-const stats = c.stats;
-
-const featureIcons = [UtensilsCrossed, BookOpen, Coffee];
-const features = c.features.items.map((f, i) => ({ ...f, icon: featureIcons[i] }));
+  {
+    name: "Ishita Kapoor",
+    rating: 5,
+    text: "Stepping into this cafe feels like entering a different world. The interior is beautiful and the staff is very welcoming. A must-visit!",
+  }
+];
 
 const Index = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const touchStartX = React.useRef(0);
+  const heroSlides = [heroSlide1, heroSlide2, heroSlide3];
+
+  // ── REVIEWS CAROUSEL LOGIC ──
+  const [reviewIdx, setReviewIdx] = useState(0);
+  const nextReview = () => setReviewIdx((prev) => (prev + 1) % reviews.length);
+  const prevReview = () => setReviewIdx((prev) => (prev - 1 + reviews.length) % reviews.length);
+
+  // ── AMBIENT BATS LOGIC ──
+  const [swarmId, setSwarmId] = useState(0);
+  const [isSwarming, setIsSwarming] = useState(false);
+  const [flockOffsets, setFlockOffsets] = useState<{x: number, y: number, d: number}[]>([]);
+
+  const triggerSwarm = useCallback(() => {
+    const newOffsets = Array.from({ length: 5 }, () => ({
+      x: Math.random() * 70 + 50,  
+      y: Math.random() * 120 - 60, 
+      d: Math.random() * 0.4       
+    }));
+    
+    setFlockOffsets(newOffsets);
+    setSwarmId(prev => prev + 1);
+    setIsSwarming(true);
+    
+    setTimeout(() => setIsSwarming(false), 6000);
+  }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 3000); 
+    const initialTimer = setTimeout(() => {
+      triggerSwarm();
+    }, 4000); 
+
+    let timer: NodeJS.Timeout;
+    const scheduleNext = () => {
+      const nextDelay = Math.floor(Math.random() * (35000 - 30000 + 1)) + 30000;
+      timer = setTimeout(() => {
+        triggerSwarm();
+        scheduleNext();
+      }, nextDelay);
+    };
+
+    scheduleNext();
+    
+    return () => {
+      clearTimeout(initialTimer);
+      clearTimeout(timer);
+    };
+  }, [triggerSwarm]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentSlide(p => (p + 1) % 3), 4000);
     return () => clearInterval(interval);
   }, []);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const diff = touchStartX.current - e.changedTouches[0].clientX;
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
-      } else {
-        setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
-      }
-    }
-  };
-
   return (
-    // Base background for other sections to fade into
-    <div className="bg-[#FCF9F9] min-h-screen text-stone-700 font-sans selection:bg-rose-200 selection:text-stone-800 relative">
+    <div className="bg-[#1a0101] min-h-screen text-stone-300 relative overflow-x-hidden selection:bg-[#dc2626]">
       
+      {/* ── AMBIENT BATS LAYER ── */}
+      <div className="fixed inset-0 z-[100] pointer-events-none overflow-hidden">
+        <AnimatePresence>
+          {isSwarming && flockOffsets.length > 0 && (
+            <React.Fragment key={swarmId}>
+              {flockOffsets.map((offset, i) => (
+                <motion.div
+                  key={`left-bat-${i}`}
+                  className="absolute w-[200px] h-auto" 
+                  style={{ marginLeft: `${offset.x}px`, marginTop: `${offset.y}px` }}
+                  initial={{ top: "85%", left: "-15%", opacity: 0 }}
+                  animate={{ top: "-20%", left: "115%", opacity: [0, 1, 1, 0] }}
+                  transition={{ duration: 4.5, delay: offset.d, ease: "linear" }}
+                >
+                  <Lottie animationData={batAnimation} loop={true} />
+                </motion.div>
+              ))}
+              {flockOffsets.map((offset, i) => (
+                <motion.div
+                  key={`right-bat-${i}`}
+                  className="absolute w-[200px] h-auto"
+                  style={{ marginRight: `${offset.x}px`, marginTop: `${offset.y}px` }}
+                  initial={{ top: "85%", right: "-15%", opacity: 0 }}
+                  animate={{ top: "-20%", right: "115%", opacity: [0, 1, 1, 0] }}
+                  transition={{ duration: 4.5, delay: offset.d, ease: "linear" }}
+                >
+                  <div style={{ transform: "scaleX(-1)" }}>
+                    <Lottie animationData={batAnimation} loop={true} />
+                  </div>
+                </motion.div>
+              ))}
+            </React.Fragment>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* ── HERO SECTION ── */}
-      <section
-        className="relative min-h-[90vh] md:min-h-screen flex items-center overflow-hidden bg-white" // Solid white base for clear photos
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
+      <section className="relative h-screen flex items-center overflow-hidden">
         {heroSlides.map((slide, i) => (
-          <motion.img
-            key={i}
-            src={slide}
-            alt={c.name}
-            // All foggy opacity removed from here
-            className="absolute inset-0 w-full h-full object-cover"
-            initial={false}
-            // Active slide is 100% opaque. No crossfade through white.
-            animate={{ opacity: i === currentSlide ? 1 : 0, scale: i === currentSlide ? 1 : 1.05 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
+          <motion.img 
+            key={i} src={slide} 
+            className="absolute inset-0 w-full h-full object-cover" 
+            animate={{ opacity: i === currentSlide ? 1 : 0 }} 
+            transition={{ duration: 1.2 }} 
           />
         ))}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-[#1a0101] z-10" />
         
-        {/* Soft white-to-pink faded overlay removed completely from here. */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+           <BloodSplat style={{ bottom: '2%', left: '5%' }} size={350} rotate={15} opacity={0.12} />
+           <BloodSplat style={{ bottom: '5%', right: '8%' }} size={280} rotate={-20} opacity={0.1} />
+        </div>
 
-        <div className="relative z-20 container">
-          <div className="max-w-2xl">
+        <div className="container relative z-20">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <span className="text-[#dc2626] text-xs font-bold tracking-[0.4em] mb-6 block uppercase drop-shadow-[0_0_10px_#dc2626]">Food. Board Games. Good Vibes.</span>
+            <h1 className="text-6xl md:text-9xl font-display font-bold text-white mb-6 uppercase italic tracking-tighter" style={{ textShadow: "0 0 20px #dc2626" }}>Welcome to Nostalgia</h1>
+            <p className="text-xl md:text-2xl text-white mb-4 italic font-display">Your Cozy Neighborhood Escape.</p>
+            <p className="max-w-xl text-stone-400 mb-10 leading-relaxed font-display">Step into our world of floating candles, comfortable seating, and vintage games. Relive the good times with friends at GTB Nagar.</p>
+            <div className="flex flex-wrap gap-6">
+              <a href="tel:919878705823" className="bg-[#dc2626] text-white px-10 py-4 font-bold uppercase tracking-widest hover:shadow-[0_0_20px_#dc2626] transition-all">Reserve Table</a>
+              <Link to="/menu" className="border-2 border-white text-white px-10 py-4 font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all">The Menu</Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── STATS BAR (Red Section) ── */}
+      <section className="py-24 bg-[#1a0101] relative overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+           <BloodSplat style={{ top: '10%', left: '20%' }} size={400} rotate={45} opacity={0.15} />
+           <BloodSplat style={{ bottom: '15%', right: '15%' }} size={320} rotate={110} opacity={0.12} />
+           <BloodSplat style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} size={250} rotate={0} opacity={0.08} />
+        </div>
+
+        <div className="container relative z-10">
+          <div className="absolute inset-0 pointer-events-none z-50">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              className="absolute w-20 h-20"
+              style={{ x: "-50%", y: "-50%" }} 
+              animate={{
+                top: ["0%", "0%", "100%", "100%", "0%"],
+                left: ["0%", "100%", "100%", "0%", "0%"],
+              }}
+              transition={{
+                duration: 20, 
+                repeat: Infinity,
+                ease: "linear", 
+                times: [0, 0.4, 0.5, 0.9, 1] 
+              }}
             >
-              <span className="inline-flex items-center gap-2 text-[#C597A6] text-sm font-semibold tracking-widest uppercase mb-6">
-                <span className="w-8 h-px bg-[#D4A5B4]" />
-                {c.hero.badge}
-              </span>
-            </motion.div>
-
-            <motion.h1
-              className="text-5xl sm:text-6xl md:text-7xl font-display font-bold text-stone-900 mb-4 leading-tight drop-shadow-md"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              {c.hero.h1}
-            </motion.h1>
-
-            <motion.p
-              // Darker pink for readability against raw photos
-              className="text-xl md:text-2xl text-[#B38092] mb-4 font-display italic drop-shadow-md"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              {c.hero.tagline}
-            </motion.p>
-
-            <motion.p
-              // Dark gray for readability against raw photos
-              className="text-stone-600 mb-10 text-lg max-w-md leading-relaxed drop-shadow-md"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-            >
-              {c.hero.description}
-            </motion.p>
-
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.9 }}
-            >
-              <a
-                href={`tel:+${PHONE}`}
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#D4A5B4] px-8 py-4 font-medium text-white shadow-md hover:bg-[#C28EA0] transition-all duration-300"
-              >
-                <Phone size={18} />
-                Reserve Table
-              </a>
-              <Link
-                to="/menu"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E8D6D9] text-stone-700 bg-white/70 backdrop-blur-sm px-8 py-4 font-medium hover:bg-white hover:border-[#D4A5B4] transition-all duration-300"
-              >
-                Explore Menu
-                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform text-[#D4A5B4]" />
-              </Link>
+              <Lottie animationData={ghostAnimation} loop={true} className="w-full h-full drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" />
             </motion.div>
           </div>
-        </div>
 
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-          {heroSlides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentSlide(i)}
-              // Dots logic automatically handles 3 items
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${i === currentSlide ? "bg-[#D4A5B4] w-6" : "bg-white/50 hover:bg-white/80"}`}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* ── STATS BAR ── */}
-      <section className="relative -mt-12 z-30 pb-12">
-        <div className="container">
-          <ScrollReveal>
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-[#F0E6E8] p-6 md:p-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <p className="text-3xl font-display font-semibold text-[#C597A6]">{stat.value}</p>
-                  <p className="text-xs text-stone-400 mt-2 uppercase tracking-widest">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── FEATURES ── */}
-      <section className="py-20 bg-[#FCF9F9]">
-        <div className="container">
-          <ScrollReveal>
-            <div className="text-center mb-16">
-              <span className="text-[#D4A5B4] text-xs font-semibold tracking-widest uppercase">Why Us</span>
-              <h2 className="text-3xl font-display font-bold text-stone-800 mt-3">{c.features.heading}</h2>
-            </div>
-          </ScrollReveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((f, i) => (
-              <ScrollReveal key={f.title} delay={i * 0.1}>
-                <div className="p-8 rounded-2xl bg-[#FDF8F9] border border-[#F0E6E8] hover:shadow-sm hover:border-[#E8D6D9] transition-all text-center group">
-                  <div className="w-14 h-14 rounded-full bg-white border border-[#F0E6E8] flex items-center justify-center mb-6 mx-auto text-[#D4A5B4] group-hover:bg-[#FDF8F9] transition-colors">
-                    <f.icon size={24} strokeWidth={1.5} />
-                  </div>
-                  <h3 className="font-display text-lg font-semibold text-stone-700 mb-3">{f.title}</h3>
-                  <p className="text-stone-500 text-sm leading-relaxed">{f.desc}</p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── SPECIALTIES ── */}
-      <section className="py-20 bg-white">
-        <div className="container">
-          <ScrollReveal>
-            <div className="text-center mb-16">
-              <span className="text-[#D4A5B4] text-xs font-semibold tracking-widest uppercase">Our Menu</span>
-              <h2 className="text-3xl font-display font-bold text-stone-800 mt-3">Nostalgic Bites</h2>
-            </div>
-          </ScrollReveal>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {specialties.map((s, i) => (
-              <ScrollReveal key={s.name} delay={i * 0.1}>
-                <div className="rounded-2xl overflow-hidden bg-[#FDF8F9] border border-[#F0E6E8] group hover:shadow-sm transition-all">
-                  <div className="relative overflow-hidden">
-                    <img src={s.img} alt={s.name} className="w-full h-64 object-cover object-center group-hover:scale-105 transition-transform duration-700 opacity-90" loading="lazy" />
-                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[#C597A6] text-xs font-medium px-3 py-1.5 rounded-full border border-[#F0E6E8]">{s.tag}</div>
-                  </div>
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-display font-semibold text-stone-700 text-base">{s.name}</h3>
-                      <span className="text-sm font-medium text-[#C597A6]">{s.price}</span>
-                    </div>
-                    <p className="text-sm text-stone-500 leading-relaxed">{s.desc}</p>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-          <ScrollReveal delay={0.2}>
-            <div className="text-center mt-12">
-              <Link to="/menu" className="group inline-flex items-center gap-2 text-[#C597A6] text-sm font-medium hover:text-[#B38092] hover:gap-3 transition-all">
-                View Full Menu <ArrowRight size={16} />
-              </Link>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ── AMBIANCE SPLIT ── */}
-      <section className="py-24 bg-[#FDF8F9] overflow-hidden border-y border-[#F0E6E8]">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <ScrollReveal direction="left">
-              <div className="relative w-full max-w-lg mx-auto">
-                <img src={gallery1} alt="restaurant ambiance" className="rounded-2xl w-full aspect-[4/3] object-cover object-center shadow-sm border-4 border-white opacity-90" loading="lazy" />
-                <img src={gallery2} alt="food platter" className="absolute -bottom-10 -right-6 md:-right-10 w-48 h-48 md:w-56 md:h-56 object-cover object-center rounded-2xl border-[8px] border-[#FDF8F9] shadow-sm opacity-95" loading="lazy" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 border border-[#dc2626]/30 bg-black/40 backdrop-blur-sm relative">
+            {[
+              { label: "Cost for Two", value: "₹450" },
+              { label: "Board Games", value: "20+" },
+              { label: "Hours Open", value: "10.5" },
+              { label: "Vibe", value: "100%" }
+            ].map((stat) => (
+              <div key={stat.label} className="p-10 text-center border-r border-b border-[#dc2626]/10 last:border-0">
+                <p className="text-4xl md:text-5xl font-display font-black text-white" style={{ textShadow: "0 0-10px #dc2626" }}>{stat.value}</p>
+                <p className="text-[10px] text-[#dc2626] font-bold uppercase tracking-widest mt-2">{stat.label}</p>
               </div>
-            </ScrollReveal>
-            <ScrollReveal direction="right">
-              <div className="md:pl-8 mt-10 md:mt-0">
-                <span className="text-[#D4A5B4] text-xs font-semibold tracking-widest uppercase">Our Vibe</span>
-                <h2 className="text-3xl font-display font-bold text-stone-800 mt-3 mb-6">
-                  {c.ambiance.heading}
-                </h2>
-                <p className="text-stone-600 leading-relaxed mb-8">
-                  {c.ambiance.story}
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURES (Subtle Red Section) ── */}
+      <section className="py-32 bg-black/20 text-center relative overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+           <BloodSplat style={{ top: '20%', left: '5%' }} size={300} rotate={160} opacity={0.1} />
+           <BloodSplat style={{ bottom: '20%', right: '5%' }} size={350} rotate={20} opacity={0.12} />
+        </div>
+
+        <div className="container relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              { title: "Versatile Menu", desc: "A pocket-friendly mix of Chinese, Italian, Pizzas, Burgers, and shakes.", icon: UtensilsCrossed },
+              { title: "Board Games & Books", desc: "Unplug and unwind with our huge collection of board games and novels.", icon: BookOpen },
+              { title: "Aesthetic Vibe", desc: "Warm lighting, checkered floors, and floating candles for the perfect vibe.", icon: Coffee }
+            ].map((f, i) => (
+              <ScrollReveal key={i} delay={i * 0.1}>
+                <div className="relative h-full group">
+                  <div className="absolute inset-0 pointer-events-none z-50">
+                    <motion.div
+                      className="absolute w-12 h-12"
+                      style={{ x: "-50%", y: "-50%" }}
+                      animate={{
+                        top: ["0%", "0%", "100%", "100%", "0%"],
+                        left: ["0%", "100%", "100%", "0%", "0%"],
+                      }}
+                      transition={{
+                        duration: 10,
+                        repeat: Infinity,
+                        ease: "linear",
+                        times: [0, 0.25, 0.5, 0.75, 1]
+                      }}
+                    >
+                      <Lottie animationData={ghostAnimation} loop={true} className="w-full h-full opacity-40 group-hover:opacity-100 transition-opacity" />
+                    </motion.div>
+                  </div>
+                  <div className="p-12 bg-black border border-white/5 hover:border-[#dc2626]/40 transition-all text-center h-full">
+                    <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center mb-8 mx-auto text-[#dc2626] group-hover:shadow-[0_0_20px_#dc2626] transition-all"><f.icon size={32} /></div>
+                    <h3 className="text-2xl font-bold text-white mb-4 uppercase">{f.title}</h3>
+                    <p className="text-stone-500 leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SIGNATURE BITES (Black Section) ── */}
+      <section className="py-40 bg-black">
+        <div className="container text-center">
+          <h2 className="text-4xl md:text-7xl font-display font-bold text-white mb-24 uppercase italic" style={{ textShadow: "0 0 20px #dc2626" }}>Signature Bites</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+            {[dish1, dish2, dish3, dish4].map((img, i) => (
+              <ScrollReveal key={i}>
+                <div className="group relative flex flex-col items-center">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 pointer-events-none z-0 opacity-0 group-hover:opacity-100 group-hover:-translate-y-24 transition-all duration-700 ease-out">
+                    <Lottie animationData={spookyGhostLoader} loop={true} />
+                  </div>
+                  <div className="w-full max-w-[280px] aspect-[2/3] transition-all duration-500 hover:drop-shadow-[0_0_25px_#dc2626] relative z-10">
+                    <div className="w-full h-full bg-[#1a0101] relative" style={{ clipPath: COFFIN_PATH }}>
+                      <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700" />
+                    </div>
+                  </div>
+                  <div className="mt-8">
+                    <h3 className="text-white font-bold uppercase tracking-[0.2em] text-sm italic font-display">Cursed Item {i + 1}</h3>
+                    <span className="text-[#dc2626] font-mono text-xs font-bold">₹249</span>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── AMBIANCE SECTION (Red Section) ── */}
+      <section className="py-40 bg-[#1a0101] relative overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+           <BloodSplat style={{ top: '5%', right: '10%' }} size={420} rotate={-45} opacity={0.15} />
+           <BloodSplat style={{ bottom: '10%', left: '5%' }} size={380} rotate={130} opacity={0.13} />
+           <BloodSplat style={{ top: '40%', left: '40%' }} size={250} rotate={10} opacity={0.1} />
+        </div>
+
+        <div className="container grid grid-cols-1 md:grid-cols-2 gap-24 items-center relative z-10">
+          <div className="relative flex justify-center">
+            <div className="w-full max-w-sm aspect-[3/4] hover:drop-shadow-[0_0_30px_#dc2626] transition-all duration-500">
+              <div className="w-full h-full bg-black" style={{ clipPath: COFFIN_PATH }}>
+                <img src={gallery1} className="w-full h-full object-cover opacity-80" />
+              </div>
+            </div>
+            <div className="absolute -bottom-10 -right-4 w-48 h-64 hover:drop-shadow-[0_0_20px_#dc2626] transition-all duration-500">
+               <div className="w-full h-full bg-black border-4 border-[#1a0101]" style={{ clipPath: COFFIN_PATH }}>
+                  <img src={gallery2} className="w-full h-full object-cover" />
+               </div>
+            </div>
+          </div>
+          <div className="text-center md:text-left font-display">
+            <h2 className="text-4xl font-display font-bold text-white mb-8 uppercase italic" style={{ textShadow: "0 0-10px #dc2626" }}>Relive The Good Times</h2>
+            <p className="text-stone-400 leading-relaxed mb-10 text-xl italic">Located opposite the NDPL Office in GTB Nagar, Nostalgia Cafe is where great food meets an unforgettable, cozy atmosphere.</p>
+            <Link to="/gallery" className="text-[#dc2626] font-black uppercase text-sm tracking-[0.4em] hover:tracking-[0.6em] transition-all border-b border-[#dc2626] pb-1">Explore Gallery →</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── REVIEWS SECTION (New Carousel) ── */}
+      <section className="py-32 bg-black relative overflow-hidden">
+        <div className="container relative z-10 text-center">
+          <ScrollReveal>
+            <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-16 uppercase italic" style={{ textShadow: "0 0 15px #dc2626" }}>Voices From The Crypt</h2>
+          </ScrollReveal>
+
+          <div className="relative max-w-3xl mx-auto px-12">
+            <div className="absolute top-0 left-0 text-[#dc2626]/20 -translate-x-4 -translate-y-8">
+              <Quote size={80} />
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={reviewIdx}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4 }}
+                className="bg-[#1a0101]/40 border border-[#dc2626]/30 p-10 md:p-16 rounded-3xl backdrop-blur-sm shadow-[0_0_20px_rgba(220,38,38,0.1)]"
+              >
+                <div className="flex justify-center gap-1 mb-6">
+                  {[...Array(reviews[reviewIdx].rating)].map((_, i) => (
+                    <Star key={i} size={20} className="fill-[#dc2626] text-[#dc2626]" />
+                  ))}
+                </div>
+                <p className="text-xl md:text-2xl text-white italic font-display leading-relaxed mb-8">
+                  "{reviews[reviewIdx].text}"
                 </p>
-                <Link to="/about" className="group inline-flex items-center gap-2 text-[#C597A6] text-sm font-medium hover:text-[#B38092] hover:gap-3 transition-all">
-                  See Gallery <ArrowRight size={16} />
-                </Link>
-              </div>
-            </ScrollReveal>
+                <h4 className="text-[#dc2626] font-bold uppercase tracking-widest text-sm">
+                  — {reviews[reviewIdx].name}
+                </h4>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Carousel Buttons */}
+            <button 
+              onClick={prevReview}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 rounded-full border border-[#dc2626]/50 flex items-center justify-center text-white hover:bg-[#dc2626] hover:shadow-[0_0_15px_#dc2626] transition-all z-20"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <button 
+              onClick={nextReview}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 rounded-full border border-[#dc2626]/50 flex items-center justify-center text-white hover:bg-[#dc2626] hover:shadow-[0_0_15px_#dc2626] transition-all z-20"
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
+          
+          <div className="mt-12">
+             <a 
+               href="https://maps.app.goo.gl/FJ2LZBoiFk5SLKpG6" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               className="text-stone-500 hover:text-[#dc2626] text-xs font-bold uppercase tracking-[0.2em] transition-colors"
+             >
+               View All Google Reviews →
+             </a>
           </div>
         </div>
       </section>
 
-      {/* ── REVIEWS ── */}
-      <section className="py-20 bg-white">
-        <div className="container">
-          <ScrollReveal>
-            <div className="text-center mb-16">
-              <span className="text-[#D4A5B4] text-xs font-semibold tracking-widest uppercase">Testimonials</span>
-              <h2 className="text-3xl font-display font-bold text-stone-800 mt-3">What The City Says</h2>
+      {/* ── VISIT THE CRYPT ── */}
+      <section className="py-40 bg-black">
+        <div className="container grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+          <div className="space-y-12 text-center md:text-left">
+            <h2 className="text-5xl md:text-6xl font-display font-bold text-white uppercase italic tracking-widest" style={{ textShadow: "0 0 10px #dc2626" }}>Visit the Crypt</h2>
+            <div className="space-y-8">
+               <a 
+                 href="https://www.google.com/maps/search/Nostalgia+Cafe,+Vijay+Nagar,+Delhi" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className="flex items-start justify-center md:justify-start gap-6 group hover:text-white transition-colors"
+               >
+                  <MapPin size={24} className="text-[#dc2626] mt-1 shrink-0" />
+                  <p className="text-stone-300 text-xl font-display leading-tight group-hover:text-white transition-colors">
+                    F-21A, Ground Floor, Vijay Nagar,<br />
+                    Opp. NDPL Office, Block F, GTB Nagar,<br />
+                    Delhi 110009
+                  </p>
+               </a>
+               <div className="flex items-center justify-center md:justify-start gap-6 group">
+                  <Phone size={24} className="text-[#dc2626]" />
+                  <p className="text-stone-300 text-xl font-display">+91 98787 05823</p>
+               </div>
             </div>
-          </ScrollReveal>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {reviews.map((r, i) => (
-              <ScrollReveal key={r.name} delay={i * 0.1}>
-                <div className="p-8 rounded-2xl bg-[#FDF8F9] border border-[#F0E6E8] hover:border-[#E8D6D9] transition-all relative mt-4">
-                  <div className="absolute -top-5 left-8 text-5xl text-[#F0E6E8] font-display font-serif">"</div>
-                  <div className="flex gap-1 mb-5 relative z-10">
-                    {Array.from({ length: r.rating }).map((_, j) => (
-                      <Star key={j} size={14} className="fill-[#D4A5B4] text-[#D4A5B4]" />
-                    ))}
-                  </div>
-                  <p className="text-stone-500 text-sm mb-8 leading-relaxed relative z-10 italic">"{r.text}"</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white border border-[#F0E6E8] flex items-center justify-center text-[#C597A6] font-medium text-sm">{r.avatar}</div>
-                    <p className="font-medium text-stone-700 text-sm">{r.name}</p>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
+          </div>
+
+          <div className="h-[450px] border border-[#dc2626]/20 bg-black shadow-2xl overflow-hidden relative group">
+             <iframe 
+               src="https://maps.google.com/maps?q=Nostalgia+Cafe,+Vijay+Nagar,+Delhi&t=&z=15&ie=UTF8&iwloc=&output=embed" 
+               width="100%" 
+               height="100%" 
+               style={{ border: 0 }} 
+               allowFullScreen 
+               loading="lazy" 
+               referrerPolicy="no-referrer-when-downgrade"
+             />
+             <div className="absolute inset-0 pointer-events-none border-2 border-transparent group-hover:border-[#dc2626]/30 transition-all duration-500" />
           </div>
         </div>
       </section>
 
-      {/* ── HOURS & LOCATION ── */}
-      <section className="py-20 bg-[#FCF9F9]">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-            <ScrollReveal direction="left">
-              <div className="pr-0 md:pr-10">
-                <span className="text-[#D4A5B4] text-xs font-semibold tracking-widest uppercase">Find Us</span>
-                <h2 className="text-3xl font-display font-bold text-stone-800 mt-3 mb-10">Drop By Anytime</h2>
-                <div className="space-y-4">
-                  
-                  {/* Address */}
-                  <a href={MAPS_LINK} target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-[#F0E6E8] hover:border-[#E8D6D9] transition-all group">
-                    <div className="w-10 h-10 rounded-full bg-[#FDF8F9] flex items-center justify-center shrink-0 group-hover:bg-[#F0E6E8] transition-colors">
-                      <MapPin size={18} className="text-[#C597A6]" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-stone-700 mb-1 text-sm">Address</h4>
-                      <p className="text-sm text-stone-500 leading-relaxed">{ADDRESS}</p>
-                    </div>
-                  </a>
-
-                  {/* Hours */}
-                  <div className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-[#F0E6E8]">
-                    <div className="w-10 h-10 rounded-full bg-[#FDF8F9] flex items-center justify-center shrink-0">
-                      <Clock size={18} className="text-[#C597A6]" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-stone-700 mb-1 text-sm">Opening Hours</h4>
-                      <p className="text-sm text-stone-500">{c.hours}</p>
-                    </div>
-                  </div>
-
-                  {/* Phone */}
-                  <a href={`tel:+${PHONE}`} className="flex items-start gap-4 p-5 rounded-2xl bg-white border border-[#F0E6E8] hover:border-[#E8D6D9] transition-all group">
-                    <div className="w-10 h-10 rounded-full bg-[#FDF8F9] flex items-center justify-center shrink-0 group-hover:bg-[#F0E6E8] transition-colors">
-                      <Phone size={18} className="text-[#C597A6]" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-stone-700 mb-1 text-sm">Phone</h4>
-                      <p className="text-sm text-stone-500">{PHONE_DISPLAY}</p>
-                    </div>
-                  </a>
-
-                </div>
-              </div>
-            </ScrollReveal>
-            
-            <ScrollReveal direction="right">
-              <div className="rounded-3xl overflow-hidden border border-[#F0E6E8] w-full h-[350px] md:h-[450px] bg-white flex flex-col p-2 relative">
-                <iframe
-                  src={MAPS_EMBED}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, borderRadius: '1rem', flexGrow: 1 }} 
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title={`${c.name} Location`}
-                />
-              </div>
-            </ScrollReveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA BANNER ── */}
-      <section className="py-24 bg-white border-t border-[#F0E6E8] text-center relative">
-        <div className="container max-w-3xl relative z-10">
-          <ScrollReveal>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-stone-800 mb-5">
-              {c.cta.heading}
-            </h2>
-            <p className="text-stone-500 mb-10 text-base leading-relaxed">
-              {c.cta.subtext}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href={`tel:+${PHONE}`}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#D4A5B4] text-white px-8 py-3.5 font-medium hover:bg-[#C28EA0] transition-all duration-300"
-              >
-                <Phone size={18} />
-                Reserve Table
-              </a>
-              <Link
-                to="/menu"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E8D6D9] text-stone-700 bg-transparent px-8 py-3.5 font-medium hover:bg-[#FDF8F9] hover:border-[#D4A5B4] transition-all duration-300"
-              >
-                View Menu
-              </Link>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
     </div>
   );
 };

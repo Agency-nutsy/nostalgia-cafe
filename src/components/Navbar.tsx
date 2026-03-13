@@ -32,121 +32,101 @@ const Navbar = () => {
   const showSolid = scrolled || !isHome;
 
   return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        showSolid
-          ? "bg-white/90 backdrop-blur-md border-b border-[#F0E6E8] shadow-sm"
-          : "bg-transparent py-2"
-      }`}
-    >
-      <div className="container flex items-center justify-between h-16 md:h-20">
-        
-        {/* LOGO */}
-        <Link to="/" className="font-display text-2xl font-bold tracking-tight flex gap-1">
-          <span className="text-[#C597A6]">Nostalgia</span>
-          <span className="text-stone-700">Cafe</span>
-        </Link>
+    <>
+      <style>{`
+        @keyframes neonFlicker {
+          0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+            text-shadow: 0 0 5px #fff, 0 0 10px #dc2626, 0 0 20px #dc2626;
+          }
+          20%, 22%, 24%, 55% { text-shadow: none; }
+        }
+        .neon-flicker { animation: neonFlicker 4s infinite; }
+      `}</style>
 
-        {/* Desktop */}
-        <ul className="hidden md:flex items-center gap-8">
-          {navLinks.map((l) => (
-            <li key={l.to}>
-              <Link
-                to={l.to}
-                className={`text-sm font-medium transition-colors relative py-1 block ${
-                  location.pathname === l.to
-                    ? "text-[#C597A6]"
-                    : "text-stone-500 hover:text-[#D4A5B4]"
-                }`}
-              >
-                {l.label}
-                {location.pathname === l.to && (
-                  <motion.div
-                    layoutId="nav-indicator"
-                    className="absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full bg-[#D4A5B4]"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-              </Link>
-            </li>
-          ))}
-        </ul>
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className={`fixed top-0 left-0 right-0 z-[1000] transition-all duration-500 ${
+          showSolid
+            ? "bg-[#1a0101]/95 backdrop-blur-md border-b border-[#dc2626]/20 shadow-[0_0_30px_rgba(0,0,0,0.9)]"
+            : "bg-transparent py-4"
+        }`}
+      >
+        <div className="container flex items-center justify-between h-16 md:h-20">
+          
+          {/* LOGO (Eyes removed from here) */}
+          <div className="flex items-center gap-6">
+            <Link to="/" className="font-display text-2xl font-bold tracking-tighter flex items-center gap-1 group">
+              <span className="text-[#dc2626] drop-shadow-[0_0_8px_#dc2626] uppercase italic neon-flicker">Nostalgia</span>
+              <span className="text-white uppercase italic">Cafe</span>
+            </Link>
+          </div>
 
-        {/* Desktop CTA */}
-        <a
-          href={`tel:+${PHONE}`}
-          className={`hidden md:inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium transition-all duration-300 ${
-            showSolid
-              ? "bg-[#D4A5B4] text-white hover:bg-[#C28EA0] hover:shadow-sm"
-              : "bg-white/50 backdrop-blur-sm text-stone-600 border border-[#E8D6D9] hover:bg-white hover:border-[#D4A5B4]"
-          }`}
-        >
-          <Phone size={16} />
-          Call Us
-        </a>
+          {/* Desktop Nav */}
+          <ul className="hidden md:flex items-center gap-10">
+            {navLinks.map((l) => (
+              <li key={l.to}>
+                <Link
+                  to={l.to}
+                  className={`text-[10px] font-black uppercase tracking-[0.3em] transition-all relative py-1 block ${
+                    location.pathname === l.to ? "text-white" : "text-stone-500 hover:text-[#dc2626]"
+                  }`}
+                >
+                  {l.label}
+                  {location.pathname === l.to && (
+                    <motion.div
+                      layoutId="nav-indicator"
+                      className="absolute -bottom-1 left-0 right-0 h-[1px] bg-[#dc2626] shadow-[0_0_10px_#dc2626]"
+                    />
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
 
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden p-2 transition-colors text-stone-600 hover:text-[#C597A6]"
-          aria-label="Toggle menu"
-        >
-          {open ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="md:hidden border-t border-[#F0E6E8] bg-white/95 backdrop-blur-xl overflow-hidden shadow-xl"
+          {/* Desktop CTA */}
+          <a
+            href={`tel:${PHONE}`}
+            className="hidden md:inline-flex items-center gap-2 px-8 py-3 bg-[#dc2626] text-white text-[10px] font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all shadow-[0_0_15px_rgba(220,38,38,0.4)]"
           >
-            <ul className="flex flex-col p-4 gap-2">
-              {navLinks.map((l, i) => (
-                <motion.li
-                  key={l.to}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
-                  <Link
-                    to={l.to}
-                    onClick={() => setOpen(false)}
-                    className={`block py-3 px-4 rounded-xl text-sm font-medium transition-colors ${
-                      location.pathname === l.to
-                        ? "bg-[#FDF8F9] text-[#C597A6] shadow-sm border border-[#F0E6E8]"
-                        : "text-stone-600 hover:bg-[#FCF9F9] hover:text-[#D4A5B4]"
-                    }`}
-                  >
-                    {l.label}
-                  </Link>
-                </motion.li>
-              ))}
-              <motion.li
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.25 }}
-              >
-                <a
-                  href={`tel:+${PHONE}`}
-                  className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#D4A5B4] text-white text-sm font-medium text-center mt-2 border border-[#D4A5B4] hover:bg-[#C28EA0] transition-colors"
-                >
-                  <Phone size={16} />
-                  Call Us
-                </a>
-              </motion.li>
-            </ul>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.nav>
+            <Phone size={12} /> Reserve
+          </a>
+
+          {/* Mobile toggle */}
+          <button onClick={() => setOpen(!open)} className="md:hidden p-2 text-white hover:text-[#dc2626]">
+            {open ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-[#1a0101] border-t border-[#dc2626]/20 overflow-hidden"
+            >
+              <ul className="flex flex-col p-6 gap-4">
+                {navLinks.map((l) => (
+                  <li key={l.to}>
+                    <Link
+                      to={l.to}
+                      onClick={() => setOpen(false)}
+                      className={`block py-3 text-2xl font-black uppercase italic tracking-tighter ${
+                        location.pathname === l.to ? "text-[#dc2626]" : "text-white/40"
+                      }`}
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.nav>
+    </>
   );
 };
 

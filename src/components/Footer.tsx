@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { Instagram, Phone, MapPin } from "lucide-react";
+import { Instagram, Phone, MapPin, Skull, Ghost } from "lucide-react";
 
-// Integrated Nostalgia Cafe Data
+// Integrated Spooky Nostalgia Cafe Data
 const c = {
   name: "Nostalgia Cafe",
   nameParts: {
@@ -14,52 +14,55 @@ const c = {
   mapsLink: "https://maps.app.goo.gl/QEPbURnF19ad3KqQ6",
   instagram: "https://www.instagram.com/nostalgia__cafe_/?hl=en", 
   hours: "12:00 PM - 10:30 PM, Monday - Sunday",
-  footerDescription: "Your cozy, pink-hued neighborhood spot in GTB Nagar. Come for the comfort food, stay for the board games, novels, and unforgettable aesthetic.",
+  footerDescription: "GTB Nagar's most immersive horror cafe. Step into the shadows for comfort food, board games, and an atmosphere you'll never forget... or escape.",
   popularItems: [
-    "Signature Cold Coffee",
-    "Spicy Arrabbiata Penne",
-    "Classic Veggie Burger",
-    "Chilli Paneer Dry"
+    "Cursed Cold Coffee",
+    "Bloody Arrabbiata Penne",
+    "The Final Burger",
+    "Chilli Paneer (Spiced in Hell)"
   ]
 };
 
 const Footer = () => {
   return (
-    <footer className="bg-[#FCF9F9] text-stone-700 relative overflow-hidden border-t border-[#F0E6E8]">
-      {/* Soft ambient background elements */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#E8D6D9] to-transparent" />
-      <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-[#FDF8F9] blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-10 w-40 h-40 rounded-full bg-white blur-3xl pointer-events-none" />
+    <footer className="bg-[#050505] text-stone-400 relative overflow-hidden border-t border-[#dc2626]/20">
+      
+      {/* Cursed Ambient Elements */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#dc2626]/50 to-transparent shadow-[0_0_15px_#dc2626]" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-[#450a0a]/20 blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-black blur-3xl pointer-events-none" />
+
+      {/* Global Scanline (Consistent with Home/Navbar) */}
+      <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_2px]" />
 
       <div className="container py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
 
           {/* Brand */}
           <div className="md:col-span-1">
-            <h3 className="font-display text-3xl font-bold mb-4 flex gap-1.5">
-              <span className="text-[#C597A6]">{c.nameParts.primary}</span>
-              <span className="text-stone-700">{c.nameParts.accent}</span>
+            <h3 className="font-display text-3xl font-bold mb-6 flex items-center gap-2 italic uppercase tracking-tighter">
+              <span className="text-[#dc2626] drop-shadow-[0_0_10px_#dc2626]">{c.nameParts.primary}</span>
+              <span className="text-white">{c.nameParts.accent}</span>
             </h3>
-            <p className="text-stone-500 text-sm leading-relaxed mb-6 font-medium">
+            <p className="text-stone-500 text-sm leading-relaxed mb-8 font-medium">
               {c.footerDescription}
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <a
                 href={c.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="w-10 h-10 rounded-full bg-white border border-[#F0E6E8] flex items-center justify-center text-[#C597A6] hover:bg-[#D4A5B4] hover:text-white hover:border-[#D4A5B4] shadow-sm hover:shadow-md transition-all duration-300"
+                className="w-12 h-12 rounded-sm bg-black border border-white/10 flex items-center justify-center text-white hover:text-[#dc2626] hover:border-[#dc2626] hover:shadow-[0_0_15px_#dc2626] transition-all duration-300"
               >
-                <Instagram size={18} />
+                <Instagram size={20} />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Navigate */}
           <div>
-            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-stone-800">Navigate</h4>
-            <ul className="space-y-3 text-sm">
+            <h4 className="font-black mb-6 text-xs uppercase tracking-[0.3em] text-white italic">Navigate</h4>
+            <ul className="space-y-4 text-sm">
               {[
                 { to: "/",        label: "Home"    },
                 { to: "/menu",    label: "Menu"    },
@@ -68,7 +71,8 @@ const Footer = () => {
                 { to: "/contact", label: "Contact" },
               ].map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-stone-500 font-medium hover:text-[#C597A6] transition-colors">
+                  <Link to={l.to} className="text-stone-500 font-bold hover:text-white hover:pl-2 transition-all duration-300 flex items-center gap-2">
+                    <span className="w-0 h-px bg-[#dc2626] group-hover:w-4 transition-all" />
                     {l.label}
                   </Link>
                 </li>
@@ -78,29 +82,32 @@ const Footer = () => {
 
           {/* Popular Items */}
           <div>
-            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-stone-800">Popular</h4>
-            <ul className="space-y-3 text-sm text-stone-500 font-medium">
+            <h4 className="font-black mb-6 text-xs uppercase tracking-[0.3em] text-white italic">Cursed Bites</h4>
+            <ul className="space-y-4 text-sm text-stone-500 font-medium">
               {c.popularItems.map((item) => (
-                <li key={item}>{item}</li>
+                <li key={item} className="flex items-center gap-2">
+                  <Skull size={14} className="text-[#dc2626]/40" />
+                  {item}
+                </li>
               ))}
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold mb-4 text-sm uppercase tracking-wider text-stone-800">Contact</h4>
-            <ul className="space-y-4 text-sm text-stone-500 font-medium">
+            <h4 className="font-black mb-6 text-xs uppercase tracking-[0.3em] text-white italic">Find Us</h4>
+            <ul className="space-y-6 text-sm text-stone-500 font-medium">
               <li>
                 <a href={c.mapsLink} target="_blank" rel="noopener noreferrer"
-                  className="flex items-start gap-3 hover:text-[#C597A6] transition-colors group">
-                  <MapPin size={18} className="mt-0.5 shrink-0 text-[#D4A5B4]" />
+                  className="flex items-start gap-4 hover:text-white transition-colors group">
+                  <MapPin size={20} className="mt-0.5 shrink-0 text-[#dc2626] group-hover:drop-shadow-[0_0_8px_#dc2626]" />
                   <span className="leading-relaxed">{c.addressFull}</span>
                 </a>
               </li>
               <li>
                 <a href={`tel:+${c.phone}`}
-                  className="flex items-center gap-3 hover:text-[#C597A6] transition-colors group">
-                  <Phone size={18} className="shrink-0 text-[#D4A5B4]" />
+                  className="flex items-center gap-4 hover:text-white transition-colors group">
+                  <Phone size={20} className="shrink-0 text-[#dc2626] group-hover:drop-shadow-[0_0_8px_#dc2626]" />
                   {c.phoneDisplay}
                 </a>
               </li>
@@ -110,9 +117,14 @@ const Footer = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-[#F0E6E8] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-stone-400 font-medium">© {new Date().getFullYear()} {c.name}. All rights reserved.</p>
-          <p className="text-xs text-stone-400 font-medium">{c.hours}</p>
+        <div className="border-t border-white/5 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-[10px] text-stone-600 font-bold uppercase tracking-[0.2em]">
+            © {new Date().getFullYear()} {c.name.toUpperCase()}. ALL RIGHTS RESERVED.
+          </p>
+          <div className="flex items-center gap-2 text-[10px] text-red-900 font-black uppercase tracking-widest animate-pulse">
+            <Ghost size={14} />
+            <span>{c.hours}</span>
+          </div>
         </div>
       </div>
     </footer>

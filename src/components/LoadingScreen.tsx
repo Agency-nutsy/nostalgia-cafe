@@ -16,7 +16,6 @@ const LoadingScreen = ({ onComplete }) => {
 
     const timer = setInterval(() => {
       setProgress((prev) => {
-        // Ghost ko screen ke bahar nikalne ke liye 115% tak allow kiya
         if (prev >= 115) {
           clearInterval(timer);
           setIsLoaded(true);
@@ -43,7 +42,6 @@ const LoadingScreen = ({ onComplete }) => {
   return (
     <>
       <style>{`
-        /* EXACT ORIGINAL CSS - NO GPU ACCELERATION INCLUDED */
         .neon-text {
           color: #fff;
           text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #dc2626, 0 0 40px #dc2626;
@@ -92,13 +90,11 @@ const LoadingScreen = ({ onComplete }) => {
         }
 
         @keyframes realisticSplat {
-          /* Using standard translate, NOT translate3d, to prevent the box artifact */
           0% { transform: translate(-50%, -50%) scale(0) rotate(var(--random-rot)); opacity: 1; }
           10% { transform: translate(-50%, -50%) scale(1.2) rotate(var(--random-rot)); opacity: 0.95; }
           100% { transform: translate(-50%, calc(-50% + 40px)) scale(1.3) rotate(var(--random-rot)); opacity: 0.8; }
         }
 
-        /* RUNNING GHOST STYLES */
         .ghost-runner {
            position: absolute;
            bottom: 100%; 
@@ -115,13 +111,14 @@ const LoadingScreen = ({ onComplete }) => {
           isLoaded ? "opacity-0" : "opacity-100"
         }`}
       >
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 flex items-center justify-center">
+          {/* FIXED: Changed object-cover to object-contain md:object-cover so the eyes aren't chopped off on mobile! */}
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="w-full h-full object-cover opacity-100"
+            className="w-full h-full object-contain md:object-cover opacity-100"
             style={{ filter: "brightness(1) contrast(1.3)" }}
           >
             <source src={bgVideo} type="video/mp4" />
@@ -134,9 +131,7 @@ const LoadingScreen = ({ onComplete }) => {
         <div className="scanline z-20"></div>
 
         <div className="text-center relative z-30 w-full px-6 flex flex-col items-center">
-
-          {/* Added mb-24 to give space for the ghost above the progress bar */}
-          <h1 className="font-display text-5xl md:text-7xl font-bold tracking-widest mb-24 uppercase text-neutral-800">
+          <h1 className="font-display text-4xl md:text-7xl font-bold tracking-widest mb-24 uppercase text-neutral-800">
             {letters.map((char, index) => {
               const triggerThreshold = (index / letters.length) * 100;
               const isBleeding = progress >= triggerThreshold;
@@ -148,7 +143,6 @@ const LoadingScreen = ({ onComplete }) => {
                     {char === " " ? "\u00A0" : char}
                   </span>
 
-                  {/* EXACT ORIGINAL RENDER LOGIC */}
                   {isBleeding && char !== " " && (
                     <div
                       className="real-blood-splatter"
@@ -164,13 +158,11 @@ const LoadingScreen = ({ onComplete }) => {
           </h1>
 
           <div className="w-full max-w-md relative mt-8">
-            {/* Ghost Runner */}
             <div className="ghost-runner" style={{ left: `${progress}%` }}>
                <Lottie animationData={runningGhost} loop={true} />
             </div>
             
             <div className="w-full h-[2px] bg-neutral-900 rounded-full overflow-hidden relative mt-2">
-              {/* Progress bar capped at 100% visually */}
               <div
                 className="absolute top-0 left-0 h-full bg-red-700 shadow-[0_0_15px_rgba(220,38,38,0.9)] transition-all duration-75 ease-linear"
                 style={{ width: `${Math.min(progress, 100)}%` }}

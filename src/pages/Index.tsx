@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { UtensilsCrossed, BookOpen, Star, MapPin, Phone, Coffee, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,10 +22,8 @@ import spookyGhostLoader from "@/assets/Spooky Ghost Loader.json";
 import batAnimation from "@/assets/bat.json"; 
 import bloodSplat from "@/assets/blood.png"; 
 
-// The Exact Coffin Shape
 const COFFIN_PATH = "polygon(25% 0%, 75% 0%, 100% 30%, 80% 100%, 20% 100%, 0% 30%)";
 
-// ── HELPER FOR BLOOD PLACEMENT ──
 const BloodSplat = ({ style, rotate, size, opacity }: any) => (
   <img 
     src={bloodSplat}
@@ -42,7 +40,6 @@ const BloodSplat = ({ style, rotate, size, opacity }: any) => (
   />
 );
 
-// Top Reviews from Google Maps (4 & 5 Stars Only)
 const reviews = [
   {
     name: "Arjun Sharma",
@@ -68,14 +65,18 @@ const reviews = [
 
 const Index = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const heroSlides = [heroSlide1, heroSlide2, heroSlide3];
 
-  // ── REVIEWS CAROUSEL LOGIC ──
+  // ✅ CHANGED: Each slide now has its own mobile crop position
+  const heroSlides = [
+    { src: heroSlide1, position: "object-center" },  // ambiance — center is perfect
+    { src: heroSlide2, position: "object-right" },   // food — subject on right side
+    { src: heroSlide3, position: "object-right" },   // food — subject on right side
+  ];
+
   const [reviewIdx, setReviewIdx] = useState(0);
   const nextReview = () => setReviewIdx((prev) => (prev + 1) % reviews.length);
   const prevReview = () => setReviewIdx((prev) => (prev - 1 + reviews.length) % reviews.length);
 
-  // ── AMBIENT BATS LOGIC ──
   const [swarmId, setSwarmId] = useState(0);
   const [isSwarming, setIsSwarming] = useState(false);
   const [flockOffsets, setFlockOffsets] = useState<{x: number, y: number, d: number}[]>([]);
@@ -86,11 +87,9 @@ const Index = () => {
       y: Math.random() * 120 - 60, 
       d: Math.random() * 0.4       
     }));
-    
     setFlockOffsets(newOffsets);
     setSwarmId(prev => prev + 1);
     setIsSwarming(true);
-    
     setTimeout(() => setIsSwarming(false), 6000);
   }, []);
 
@@ -161,34 +160,75 @@ const Index = () => {
       </div>
 
       {/* ── HERO SECTION ── */}
-      <section className="relative h-screen flex items-center overflow-hidden">
-        {heroSlides.map((slide, i) => (
-          <motion.img 
-            key={i} src={slide} 
-            className="absolute inset-0 w-full h-full object-cover" 
-            animate={{ opacity: i === currentSlide ? 1 : 0 }} 
-            transition={{ duration: 1.2 }} 
-          />
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-transparent to-[#1a0101] z-10" />
-        
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-           <BloodSplat style={{ bottom: '2%', left: '5%' }} size={350} rotate={15} opacity={0.12} />
-           <BloodSplat style={{ bottom: '5%', right: '8%' }} size={280} rotate={-20} opacity={0.1} />
+      <section className="relative bg-[#1a0101] overflow-hidden md:min-h-screen">
+
+        {/* IMAGE CONTAINER */}
+        <div className="relative w-full h-[55vh] md:absolute md:inset-0 md:h-auto z-0">
+          {/* ✅ CHANGED: slide.src + per-slide position class on mobile, always object-center on desktop */}
+          {heroSlides.map((slide, i) => (
+            <motion.img
+              key={i}
+              src={slide.src}
+              className={`absolute inset-0 w-full h-full object-cover md:object-center ${slide.position}`}
+              animate={{ opacity: i === currentSlide ? 1 : 0 }}
+              transition={{ duration: 1.2 }}
+            />
+          ))}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-[#1a0101] md:from-black/70 md:via-transparent md:to-[#1a0101]" />
         </div>
 
-        <div className="container relative z-20">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-[#dc2626] text-xs font-bold tracking-[0.4em] mb-6 block uppercase drop-shadow-[0_0_10px_#dc2626]">Food. Board Games. Good Vibes.</span>
-            <h1 className="text-6xl md:text-9xl font-display font-bold text-white mb-6 uppercase italic tracking-tighter" style={{ textShadow: "0 0 20px #dc2626" }}>Welcome to Nostalgia</h1>
-            <p className="text-xl md:text-2xl text-white mb-4 italic font-display">Your Cozy Neighborhood Escape.</p>
-            <p className="max-w-xl text-stone-400 mb-10 leading-relaxed font-display">Step into our world of floating candles, comfortable seating, and vintage games. Relive the good times with friends at GTB Nagar.</p>
-            <div className="flex flex-wrap gap-6">
-              <a href="tel:919878705823" className="bg-[#dc2626] text-white px-10 py-4 font-bold uppercase tracking-widest hover:shadow-[0_0_20px_#dc2626] transition-all">Reserve Table</a>
-              <Link to="/menu" className="border-2 border-white text-white px-10 py-4 font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all">The Menu</Link>
+        {/* Blood splats — hidden on mobile */}
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden hidden md:block">
+          <BloodSplat style={{ bottom: '2%', left: '5%' }} size={350} rotate={15} opacity={0.12} />
+          <BloodSplat style={{ bottom: '5%', right: '8%' }} size={280} rotate={-20} opacity={0.1} />
+        </div>
+
+        {/* TEXT CONTAINER */}
+        <div className="container relative z-20 px-6 py-10 md:py-0
+                        md:absolute md:inset-0 md:flex md:flex-col md:justify-center
+                        flex flex-col items-center md:items-start text-center md:text-left">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-3xl pb-12 md:pb-0"
+          >
+            <span className="text-[#dc2626] text-[10px] md:text-xs font-bold tracking-[0.3em] md:tracking-[0.4em] mb-4 md:mb-6 block uppercase drop-shadow-[0_0_10px_#dc2626]">
+              Food. Board Games. Good Vibes.
+            </span>
+
+            <h1
+              className="text-5xl sm:text-6xl md:text-9xl font-display font-bold text-white mb-4 md:mb-6 uppercase italic tracking-tighter leading-[0.9]"
+              style={{ textShadow: "0 0 20px #dc2626" }}
+            >
+              Welcome to Nostalgia
+            </h1>
+
+            <p className="text-lg md:text-2xl text-white mb-4 italic font-display">
+              Your Cozy Neighborhood Escape.
+            </p>
+            <p className="text-sm md:text-base text-stone-300 mb-8 md:mb-10 leading-relaxed font-display mx-auto md:mx-0 max-w-xl">
+              Step into our world of floating candles, comfortable seating, and vintage games. Relive the good times with friends at GTB Nagar.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center md:justify-start w-full">
+              <a
+                href="tel:919878705823"
+                className="w-full sm:w-auto text-center bg-[#dc2626] text-white px-8 py-4 font-bold uppercase tracking-widest hover:shadow-[0_0_20px_#dc2626] transition-all text-sm md:text-base"
+              >
+                Reserve Table
+              </a>
+              <Link
+                to="/menu"
+                className="w-full sm:w-auto text-center border-2 border-white text-white px-8 py-4 font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all text-sm md:text-base"
+              >
+                The Menu
+              </Link>
             </div>
           </motion.div>
         </div>
+
+        {/* Spacer for desktop full-height */}
+        <div className="hidden md:block md:min-h-screen" />
       </section>
 
       {/* ── STATS BAR (Red Section) ── */}
@@ -337,7 +377,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ── REVIEWS SECTION (New Carousel) ── */}
+      {/* ── REVIEWS SECTION ── */}
       <section className="py-32 bg-black relative overflow-hidden">
         <div className="container relative z-10 text-center">
           <ScrollReveal>
@@ -372,7 +412,6 @@ const Index = () => {
               </motion.div>
             </AnimatePresence>
 
-            {/* Carousel Buttons */}
             <button 
               onClick={prevReview}
               className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 rounded-full border border-[#dc2626]/50 flex items-center justify-center text-white hover:bg-[#dc2626] hover:shadow-[0_0_15px_#dc2626] transition-all z-20"

@@ -112,7 +112,6 @@ const LoadingScreen = ({ onComplete }) => {
         }`}
       >
         <div className="absolute inset-0 z-0 flex items-center justify-center">
-          {/* FIXED: Changed object-cover to object-contain md:object-cover so the eyes aren't chopped off on mobile! */}
           <video
             autoPlay
             loop
@@ -131,7 +130,8 @@ const LoadingScreen = ({ onComplete }) => {
         <div className="scanline z-20"></div>
 
         <div className="text-center relative z-30 w-full px-6 flex flex-col items-center">
-          <h1 className="font-display text-4xl md:text-7xl font-bold tracking-widest mb-24 uppercase text-neutral-800">
+          {/* ✅ CHANGED: text-[7vw] scales with screen width, whitespace-nowrap prevents line break */}
+          <h1 className="font-display text-[7vw] md:text-7xl font-bold tracking-widest mb-24 uppercase text-neutral-800 whitespace-nowrap">
             {letters.map((char, index) => {
               const triggerThreshold = (index / letters.length) * 100;
               const isBleeding = progress >= triggerThreshold;
@@ -173,7 +173,6 @@ const LoadingScreen = ({ onComplete }) => {
           <div className="mt-4 text-red-700/80 font-mono text-xs tracking-[0.3em] font-bold">
             INITIALIZING {Math.min(Math.floor(progress), 100)}%
           </div>
-
         </div>
       </div>
     </>

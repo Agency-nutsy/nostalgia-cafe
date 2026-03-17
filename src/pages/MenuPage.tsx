@@ -9,10 +9,8 @@ import bloodSplat from "@/assets/blood.png";
 
 const PHONE = "+919878705823";
 
-// The Exact Coffin Shape Path
 const COFFIN_PATH = "polygon(25% 0%, 75% 0%, 100% 30%, 80% 100%, 20% 100%, 0% 30%)";
 
-// Integrated Menu Data
 const menuData = [
   {
     category: "Pizza",
@@ -159,7 +157,6 @@ const menuData = [
   }
 ];
 
-// ── HELPER FOR BLOOD PLACEMENT ──
 const BloodSplat = ({ style, rotate, size, opacity }: any) => (
   <img 
     src={bloodSplat}
@@ -176,7 +173,6 @@ const BloodSplat = ({ style, rotate, size, opacity }: any) => (
   />
 );
 
-// --- Interactive Menu Book ---
 const MenuBook = ({ categories }: { categories: typeof menuData }) => {
   const [flippedIndex, setFlippedIndex] = useState(0);
   useEffect(() => { setFlippedIndex(0); }, [categories]);
@@ -200,7 +196,6 @@ const MenuBook = ({ categories }: { categories: typeof menuData }) => {
         </div>
       </ScrollReveal>
       <div className="relative w-full max-w-[600px] flex justify-center mt-4 perspective-[2000px]">
-        {/* ROD REMOVED FROM HERE */}
         <div className="relative w-[160px] xs:w-[180px] sm:w-[240px] md:w-[280px] h-[260px] xs:h-[300px] sm:h-[380px] md:h-[440px]">
           {pages.map((page, index) => {
             const isFlipped = index < flippedIndex;
@@ -215,7 +210,6 @@ const MenuBook = ({ categories }: { categories: typeof menuData }) => {
                 transition={{ duration: 0.8, ease: "easeInOut" }}
                 onClick={() => isFlipped ? setFlippedIndex(Math.max(0, index)) : setFlippedIndex(Math.min(pages.length, index + 1))}
               >
-                {/* FRONT FACE OF PAGE */}
                 <div 
                   className={`absolute inset-0 flex flex-col overflow-hidden border border-[#dc2626]/30 shadow-lg ${page.type === 'cover' || page.type === 'backcover' ? 'bg-[#dc2626] text-white' : 'bg-black text-stone-300'}`} 
                   style={{ backfaceVisibility: "hidden", clipPath: COFFIN_PATH }}
@@ -228,7 +222,6 @@ const MenuBook = ({ categories }: { categories: typeof menuData }) => {
                   </div>
                 </div>
                 
-                {/* BACK FACE OF PAGE (WHEN FLIPPED) */}
                 <div 
                   className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden border border-[#dc2626]/30 bg-[#0a0000] shadow-lg" 
                   style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", clipPath: COFFIN_PATH }}
@@ -251,13 +244,13 @@ const MenuBook = ({ categories }: { categories: typeof menuData }) => {
   );
 };
 
-// --- Main Page Component ---
 const MenuPage = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const sectionRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
   const isLockActive = useRef(false);
+  // ✅ FIX: tracks when user has explicitly clicked a specific category tab
+  const isExplicitFilter = useRef(false);
 
-  // ── AMBIENT BATS LOGIC ──
   const [swarmId, setSwarmId] = useState(0);
   const [isSwarming, setIsSwarming] = useState(false);
   const [flockOffsets, setFlockOffsets] = useState<{x: number, y: number, d: number}[]>([]);
@@ -268,34 +261,23 @@ const MenuPage = () => {
       y: Math.random() * 120 - 60, 
       d: Math.random() * 0.4       
     }));
-    
     setFlockOffsets(newOffsets);
     setSwarmId(prev => prev + 1);
     setIsSwarming(true);
-    
     setTimeout(() => setIsSwarming(false), 6000);
   }, []);
 
   useEffect(() => {
-    const initialTimer = setTimeout(() => {
-      triggerSwarm();
-    }, 4000); 
+    const initialTimer = setTimeout(() => { triggerSwarm(); }, 4000); 
 
     let timer: NodeJS.Timeout;
     const scheduleNext = () => {
       const nextDelay = Math.floor(Math.random() * (35000 - 30000 + 1)) + 30000;
-      timer = setTimeout(() => {
-        triggerSwarm();
-        scheduleNext();
-      }, nextDelay);
+      timer = setTimeout(() => { triggerSwarm(); scheduleNext(); }, nextDelay);
     };
-
     scheduleNext();
     
-    return () => {
-      clearTimeout(initialTimer);
-      clearTimeout(timer);
-    };
+    return () => { clearTimeout(initialTimer); clearTimeout(timer); };
   }, [triggerSwarm]);
 
   useEffect(() => {
@@ -312,7 +294,8 @@ const MenuPage = () => {
     };
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      if (isLockActive.current) return;
+      // ✅ FIX: if user explicitly picked a category, observer must not override it
+      if (isLockActive.current || isExplicitFilter.current) return;
 
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -333,6 +316,8 @@ const MenuPage = () => {
 
   const handleCategoryChange = (category: string) => {
     isLockActive.current = true;
+    // ✅ FIX: mark as explicit filter when a specific category is chosen, clear it for "all"
+    isExplicitFilter.current = category !== "all";
     setActiveCategory(category);
     
     const targetId = category === "all" ? "menu-header-start" : category;
@@ -343,14 +328,9 @@ const MenuPage = () => {
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
-      });
+      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
 
-      setTimeout(() => {
-        isLockActive.current = false;
-      }, 1000);
+      setTimeout(() => { isLockActive.current = false; }, 1000);
     } else {
       isLockActive.current = false;
     }
@@ -364,41 +344,31 @@ const MenuPage = () => {
   return (
     <div className="relative min-h-screen bg-[#1a0101] text-stone-300 font-sans selection:bg-[#dc2626]">
       
-      {/* ── 30-SPLAT HEAVY BLOOD TEXTURE LAYER ── */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* 0% - 20% scroll depth */}
         <BloodSplat style={{ top: '1%', left: '3%' }} size={450} rotate={10} opacity={0.14} />
         <BloodSplat style={{ top: '5%', right: '5%' }} size={320} rotate={-15} opacity={0.1} />
         <BloodSplat style={{ top: '10%', left: '45%' }} size={250} rotate={110} opacity={0.08} />
         <BloodSplat style={{ top: '14%', left: '12%' }} size={380} rotate={45} opacity={0.12} />
         <BloodSplat style={{ top: '18%', right: '15%' }} size={210} rotate={190} opacity={0.09} />
         <BloodSplat style={{ top: '2%', right: '40%' }} size={180} rotate={75} opacity={0.07} />
-
-        {/* 20% - 40% scroll depth */}
         <BloodSplat style={{ top: '24%', left: '-5%' }} size={300} rotate={-20} opacity={0.11} />
         <BloodSplat style={{ top: '28%', right: '2%' }} size={400} rotate={60} opacity={0.13} />
         <BloodSplat style={{ top: '32%', left: '50%', transform: 'translateX(-50%)' }} size={260} rotate={0} opacity={0.08} />
         <BloodSplat style={{ top: '35%', left: '15%' }} size={340} rotate={130} opacity={0.12} />
         <BloodSplat style={{ top: '38%', right: '20%' }} size={220} rotate={45} opacity={0.1} />
         <BloodSplat style={{ top: '26%', left: '40%' }} size={150} rotate={-45} opacity={0.07} />
-
-        {/* 40% - 60% scroll depth */}
         <BloodSplat style={{ top: '44%', right: '-8%' }} size={350} rotate={15} opacity={0.13} />
         <BloodSplat style={{ top: '48%', left: '10%' }} size={420} rotate={-30} opacity={0.1} />
         <BloodSplat style={{ top: '52%', right: '45%' }} size={280} rotate={90} opacity={0.11} />
         <BloodSplat style={{ top: '55%', left: '25%' }} size={310} rotate={210} opacity={0.09} />
         <BloodSplat style={{ top: '58%', right: '10%' }} size={390} rotate={-10} opacity={0.14} />
         <BloodSplat style={{ top: '46%', left: '5%' }} size={200} rotate={80} opacity={0.08} />
-
-        {/* 60% - 80% scroll depth */}
         <BloodSplat style={{ top: '64%', left: '-2%' }} size={330} rotate={40} opacity={0.12} />
         <BloodSplat style={{ top: '68%', right: '15%' }} size={280} rotate={160} opacity={0.11} />
         <BloodSplat style={{ top: '72%', left: '40%' }} size={360} rotate={-55} opacity={0.13} />
         <BloodSplat style={{ top: '75%', right: '35%' }} size={220} rotate={15} opacity={0.09} />
         <BloodSplat style={{ top: '78%', left: '8%' }} size={410} rotate={70} opacity={0.14} />
         <BloodSplat style={{ top: '66%', right: '5%' }} size={190} rotate={120} opacity={0.07} />
-
-        {/* 80% - 100% scroll depth */}
         <BloodSplat style={{ top: '84%', right: '-5%' }} size={380} rotate={200} opacity={0.13} />
         <BloodSplat style={{ top: '88%', left: '30%' }} size={300} rotate={-40} opacity={0.11} />
         <BloodSplat style={{ top: '92%', right: '20%' }} size={250} rotate={85} opacity={0.09} />
@@ -470,10 +440,7 @@ const MenuPage = () => {
               <motion.div key={cat.category} id={cat.category} ref={(el) => (sectionRefs.current[cat.category] = el)} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.25, delay: catIdx * 0.05 }}>
                 <ScrollReveal delay={catIdx * 0.05}>
                   <div className="bg-black rounded-2xl border border-[#dc2626]/30 shadow-[0_0_15px_rgba(220,38,38,0.05)] p-6 md:p-8 relative group">
-                    
                     <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#dc2626] opacity-5 blur-[60px] pointer-events-none group-hover:opacity-20 transition-opacity duration-700 rounded-full" />
-                    
-                    {/* GHOST CORNERS */}
                     <div className="absolute -top-8 -left-8 md:-top-10 md:-left-10 w-24 h-24 md:w-32 md:h-32 pointer-events-none z-20">
                       <Lottie animationData={ghostAnimation} loop={true} />
                     </div>
@@ -486,7 +453,6 @@ const MenuPage = () => {
                     <div className="absolute -bottom-8 -right-8 md:-bottom-10 md:-right-10 w-24 h-24 md:w-32 md:h-32 pointer-events-none z-20" style={{ transform: "scaleX(-1)" }}>
                       <Lottie animationData={ghostAnimation} loop={true} />
                     </div>
-
                     <h2 className="text-2xl font-display font-bold text-white mb-6 flex items-center gap-3 border-b border-[#dc2626]/20 pb-4 relative z-10"><span className="text-2xl">{cat.emoji}</span>{cat.category}</h2>
                     <div className="space-y-2 relative z-10">
                       {cat.items.map((item, i) => (
